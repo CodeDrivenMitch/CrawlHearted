@@ -70,7 +70,6 @@
                 <version>${activejdbc.version}</version>
                 <executions>
                     <execution>
-                        <phase>compile</phase>
                         <goals>
                             <goal>instrument</goal>
                         </goals>
