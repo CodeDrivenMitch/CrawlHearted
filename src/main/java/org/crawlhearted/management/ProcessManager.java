@@ -11,7 +11,7 @@ import java.sql.SQLException;
  *
  */
 public class ProcessManager {
-    private static final Logger logger = LoggerFactory.getLogger(ProcessManager.class);
+    private static Logger logger = LoggerFactory.getLogger(ProcessManager.class);
 
     public ProcessManager() throws SQLException, IOException {
         logger.info("Initializing the ProcessManager module");

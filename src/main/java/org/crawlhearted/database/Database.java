@@ -18,14 +18,23 @@ import java.util.*;
  * If not, an exception will be thrown and the application will exit.
  */
 public class Database {
-    private static final Logger logger = LoggerFactory.getLogger(Database.class);
-    public static HashMap<String, List<String>> databaseRequirements;
-    public static Connection CONNECTION;
-    public static String USER;
-    public static String PASS;
-    public static int PORT;
-    public static String HOST;
-    public static String NAME;
+    private static Logger logger = LoggerFactory.getLogger(Database.class);
+    private static Map<String, List<String>> databaseRequirements;
+    private static Connection CONNECTION;
+    private static String USER;
+    private static String PASS;
+    private static int PORT;
+    private static String HOST;
+    private static String NAME;
+
+    // Constant for config file use
+    private static final String CONN_PREFIX = "jdbc:mysql://";
+    private static final String CFG_PORT = "DbPort";
+    private static final String CFG_USER = "DbUser";
+    private static final String CFG_HOST = "DbHost";
+    private static final String CFG_NAME = "DbName";
+    private static final String CFG_PWD = "DbPwd";
+    private static final String CFG_FILE = "database.cfg";
 
     /**
      * Opens a JDBC database connection as well as active JDBC connection if the database structure is correct
@@ -41,13 +50,13 @@ public class Database {
 
 
         //make the connection
-        CONNECTION = DriverManager.getConnection("jdbc:mysql://" + HOST + ":" + PORT + "/" + NAME, connectionProps);
+        CONNECTION = DriverManager.getConnection(CONN_PREFIX + HOST + ":" + PORT + "/" + NAME, connectionProps);
         logger.info("Database connection established");
 
 
         logger.info("Now checking database integrity..");
         checkDatabaseTables();
-        Base.open("com.mysql.jdbc.Driver", "jdbc:mysql://" + HOST + ":" + PORT + "/" + NAME, USER, PASS);
+        Base.open("com.mysql.jdbc.Driver", CONN_PREFIX + HOST + ":" + PORT + "/" + NAME, USER, PASS);
         logger.info("Database integrity verified and ActiveJDBC connection initialized");
     }
 
@@ -84,8 +93,12 @@ public class Database {
                 }
             }
         }
+        data.close();
     }
 
+    /**
+     * Loads the required table data from the cfg file
+     */
     private static void getRequiredTableData() {
         databaseRequirements = new HashMap<String, List<String>>();
 
@@ -115,24 +128,27 @@ public class Database {
         // load database settings.config
         Properties configFile = new java.util.Properties();
 
-        configFile.load(new FileInputStream("database.cfg"));
-        HOST = configFile.getProperty("DbHost");
-        PORT = Integer.parseInt(configFile.getProperty("DbPort"));
-        NAME = configFile.getProperty("DbName");
-        USER = configFile.getProperty("DbUser");
-        PASS = configFile.getProperty("DbPwd");
+        configFile.load(new FileInputStream(CFG_FILE));
+        HOST = configFile.getProperty(CFG_HOST);
+        PORT = Integer.parseInt(configFile.getProperty(CFG_PORT));
+        NAME = configFile.getProperty(CFG_NAME);
+        USER = configFile.getProperty(CFG_USER);
+        PASS = configFile.getProperty(CFG_PWD);
 
 
     }
 
+    /**
+     * Saves the current database settings to the disk
+     */
     public static void saveSettings() {
         Properties configFile = new java.util.Properties();
 
-        configFile.put("DbHost", HOST);
-        configFile.put("DbPort", Integer.toString(PORT));
-        configFile.put("DbName", NAME);
-        configFile.put("DbUser", USER);
-        configFile.put("DbPwd", PASS);
+        configFile.put(CFG_HOST, HOST);
+        configFile.put(CFG_PORT, Integer.toString(PORT));
+        configFile.put(CFG_NAME, NAME);
+        configFile.put(CFG_USER, USER);
+        configFile.put(CFG_PWD, PASS);
 
         try {
             configFile.store(new FileOutputStream("database.cfg"), "This is the Database settings file for the JobHearted Crawl application \r\n Last saved:");
@@ -140,4 +156,17 @@ public class Database {
             logger.warn("Couldn't store configuration!", e);
         }
     }
+
+    /**
+     * Getter for the connection field
+     * @return current database connection
+     */
+    public static Connection getCONNECTION() {
+        return CONNECTION;
+    }
+
+    /**
+     * Private constructor to hide the public one
+     */
+    private Database() {}
 }
