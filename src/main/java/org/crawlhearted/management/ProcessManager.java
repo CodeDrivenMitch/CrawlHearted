@@ -57,10 +57,7 @@ public class ProcessManager {
         try {
             return new ProcessManager();
         } catch (Exception e) {
-            UnableToStartManagerException exception = new UnableToStartManagerException();
-            // Add root cause
-            exception.initCause(e);
-            throw exception;
+            throw new UnableToStartManagerException("Could not create the process manager", e);
         }
     }
 }

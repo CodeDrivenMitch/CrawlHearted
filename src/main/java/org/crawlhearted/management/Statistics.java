@@ -1,5 +1,7 @@
 package org.crawlhearted.management;
 
+import org.crawlhearted.objects.Flag;
+
 /**
  * Created with IntelliJ IDEA for JobHearted.
  * User: Morlack
@@ -21,5 +23,9 @@ public class Statistics {
      * Initializes the Statistics class
      */
     private Statistics() {
+    }
+
+    public void urlFlagChanged(int crawlerId, Flag oldFlag, Flag newFlag) {
+
     }
 }

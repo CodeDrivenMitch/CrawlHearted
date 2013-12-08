@@ -7,4 +7,7 @@ package org.crawlhearted.exceptions;
  * Time: 5:03 PM
  */
 public class UnableToStartManagerException extends Exception{
+    public UnableToStartManagerException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
