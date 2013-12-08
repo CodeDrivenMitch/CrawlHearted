@@ -76,6 +76,7 @@ public class Database {
         while (data.next()) {
             tablesInDatabase.add(data.getString(3));
         }
+
         for (Map.Entry<String, List<String>> entry : databaseRequirements.entrySet()) {
             if (!tablesInDatabase.contains(entry.getKey())) {
                 throw new SQLException("The database doesn't contain the " + entry.getKey() + "table!");
@@ -92,6 +93,8 @@ public class Database {
                     throw new SQLException("The " + entry.getKey() + " table doesn't contains the " + column + " column!");
                 }
             }
+
+            columnData.close();
         }
         data.close();
     }
@@ -151,7 +154,7 @@ public class Database {
         configFile.put(CFG_PWD, PASS);
 
         try {
-            configFile.store(new FileOutputStream("database.cfg"), "This is the Database settings file for the JobHearted Crawl application \r\n Last saved:");
+            configFile.store(new FileOutputStream(CFG_FILE), "This is the Database settings file for the JobHearted Crawl application \r\n Last saved:");
         } catch (IOException e) {
             logger.warn("Couldn't store configuration!", e);
         }

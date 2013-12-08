@@ -13,9 +13,13 @@ import java.sql.SQLException;
 public class ProcessManager {
     private static Logger logger = LoggerFactory.getLogger(ProcessManager.class);
 
-    public ProcessManager() throws SQLException, IOException {
+    private ProcessManager() throws SQLException, IOException {
         logger.info("Initializing the ProcessManager module");
         Database.loadSettings();
         Database.openDatabaseConnection();
+    }
+
+    public static ProcessManager createProcessManager() throws SQLException, IOException {
+        return new ProcessManager();
     }
 }
