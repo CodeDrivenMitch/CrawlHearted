@@ -19,7 +19,7 @@ public class ProcessManager {
         Database.openDatabaseConnection();
     }
 
-    public static ProcessManager createProcessManager() throws SQLException, IOException {
+    public static ProcessManager createProcessManager() throws Exception {
         return new ProcessManager();
     }
 }

@@ -76,6 +76,7 @@ public class Database {
         while (data.next()) {
             tablesInDatabase.add(data.getString(3));
         }
+        data.close();
 
         for (Map.Entry<String, List<String>> entry : databaseRequirements.entrySet()) {
             if (!tablesInDatabase.contains(entry.getKey())) {
@@ -87,16 +88,16 @@ public class Database {
             while (columnData.next()) {
                 columnNames.add(columnData.getString(4));
             }
-
+            columnData.close();
             for (String column : entry.getValue()) {
                 if (!columnNames.contains(column)) {
                     throw new SQLException("The " + entry.getKey() + " table doesn't contains the " + column + " column!");
                 }
             }
 
-            columnData.close();
+
         }
-        data.close();
+
     }
 
     /**
@@ -171,5 +172,6 @@ public class Database {
     /**
      * Private constructor to hide the public one
      */
-    private Database() {}
+    private Database() {
+    }
 }
