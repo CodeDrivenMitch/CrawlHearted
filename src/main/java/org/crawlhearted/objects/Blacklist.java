@@ -32,6 +32,8 @@ public class Blacklist {
             }
         }
 
+        if(url.equals("")) allowed = false;
+
         return allowed;
     }
 }

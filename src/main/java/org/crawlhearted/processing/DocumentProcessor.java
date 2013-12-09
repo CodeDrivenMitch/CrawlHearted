@@ -28,6 +28,7 @@ public class DocumentProcessor {
     }
 
     private void processLinks(Document document) {
+
         Elements elements = document.getElementsByTag("a");
 
         for(Element e : elements) {

@@ -39,15 +39,11 @@ public class Database {
      *
      * @throws SQLException Thrown when connection failed or database structure is incorrect
      */
-    public static void openDatabaseConnection() throws SQLException {
-
-        // prepare for making the connection
-        Properties connectionProps = new Properties();
-        connectionProps.put("user", USER);
-        connectionProps.put("password", PASS);
-
-        Base.open("com.mysql.jdbc.Driver", CONN_PREFIX + HOST + ":" + PORT + "/" + NAME, USER, PASS);
-        logger.info("Database integrity verified and ActiveJDBC connection initialized");
+    public static void openDatabaseConnection() {
+        if(!Base.hasConnection()) {
+            Base.open("com.mysql.jdbc.Driver", CONN_PREFIX + HOST + ":" + PORT + "/" + NAME, USER, PASS);
+            logger.info("Database integrity verified and ActiveJDBC connection initialized");
+        }
     }
 
     /**

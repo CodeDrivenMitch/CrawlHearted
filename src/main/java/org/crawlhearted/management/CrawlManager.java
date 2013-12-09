@@ -1,5 +1,6 @@
 package org.crawlhearted.management;
 
+import org.crawlhearted.database.Database;
 import org.crawlhearted.objects.Flag;
 import org.crawlhearted.objects.Url;
 import org.crawlhearted.objects.UrlList;
@@ -60,6 +61,9 @@ public class CrawlManager extends Model implements Runnable {
      */
     @Override
     public void run() {
+        // open DB conn for this thread
+        Database.openDatabaseConnection();
+
         while (running) {
             while (paused) {
                 try {
@@ -106,11 +110,14 @@ public class CrawlManager extends Model implements Runnable {
             logger.info("Crawling " + url.getString("url"));
             Document document = Jsoup.connect(url.getString("url")).get();
             processor.processDocument(document);
+            url.setFlag(Flag.VISITED);
         } catch (UnsupportedMimeTypeException e) {
             url.setFlag(Flag.FILE);
         } catch (IOException e) {
             url.isTrulyDead();
         }
+
+        url.saveIt();
     }
 
     private void sleepForPolicy(Date startTime, Date endTime) {

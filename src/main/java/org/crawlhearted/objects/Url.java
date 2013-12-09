@@ -1,6 +1,5 @@
 package org.crawlhearted.objects;
 
-import org.crawlhearted.management.Statistics;
 import org.javalite.activejdbc.Model;
 
 /**
@@ -18,8 +17,7 @@ public class Url extends Model {
     }
 
     public void setFlag(Flag flag) {
-        Statistics.getInstance().urlFlagChanged(getInteger("crawler_id"), getFlag(), flag);
-        this.setString("flag", flag.toString());
+        this.set("flag", flag.toString());
     }
 
     public void isTrulyDead() {
@@ -41,7 +39,7 @@ public class Url extends Model {
     public boolean equals(Object obj) {
         if(obj.getClass().equals(Url.class)) {
             Url other = (Url) obj;
-            return other.getString("url").equals(this.getString("url"));
+            return other.get("url").equals(this.getString("url"));
         } else {
             return false;
         }
