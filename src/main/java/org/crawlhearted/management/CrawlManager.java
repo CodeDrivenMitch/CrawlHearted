@@ -3,6 +3,7 @@ package org.crawlhearted.management;
 import org.crawlhearted.objects.Flag;
 import org.crawlhearted.objects.Url;
 import org.crawlhearted.objects.UrlList;
+import org.crawlhearted.processing.DocumentProcessor;
 import org.javalite.activejdbc.Model;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
@@ -27,12 +28,16 @@ public class CrawlManager extends Model implements Runnable {
     //Fields used for crawling
     private UrlList urlList;
     private static Flag[] flagPriority = {Flag.FOUND, Flag.RETRY, Flag.RECRAWL};
+    // Fields used for processing
+    private DocumentProcessor processor;
 
     /**
      * Initializes the crawler by calling the relevant functions
      */
     public void initialize() {
         initializeList();
+
+        processor = DocumentProcessor.createProcessor(this);
     }
 
     /**
@@ -100,6 +105,7 @@ public class CrawlManager extends Model implements Runnable {
         try {
             logger.info("Crawling " + url.getString("url"));
             Document document = Jsoup.connect(url.getString("url")).get();
+            processor.processDocument(document);
         } catch (UnsupportedMimeTypeException e) {
             url.setFlag(Flag.FILE);
         } catch (IOException e) {
@@ -119,6 +125,12 @@ public class CrawlManager extends Model implements Runnable {
             } catch (InterruptedException e) {
                 logger.debug("", e);
             }
+        }
+    }
+
+    public void addUrlToList(Url url) {
+        if(!this.urlList.contains(url)) {
+            this.urlList.add(url);
         }
     }
 

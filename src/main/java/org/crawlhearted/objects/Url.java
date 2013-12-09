@@ -36,4 +36,14 @@ public class Url extends Model {
             this.setInteger("number_of_retries", 1);
         }
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj.getClass().equals(Url.class)) {
+            Url other = (Url) obj;
+            return other.getString("url").equals(this.getString("url"));
+        } else {
+            return false;
+        }
+    }
 }

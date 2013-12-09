@@ -19,8 +19,6 @@ import java.util.*;
  */
 public class Database {
     private static Logger logger = LoggerFactory.getLogger(Database.class);
-    private static Map<String, List<String>> databaseRequirements;
-    private static Connection CONNECTION;
     private static String USER;
     private static String PASS;
     private static int PORT;
@@ -48,79 +46,8 @@ public class Database {
         connectionProps.put("user", USER);
         connectionProps.put("password", PASS);
 
-
-        //make the connection
-        CONNECTION = DriverManager.getConnection(CONN_PREFIX + HOST + ":" + PORT + "/" + NAME, connectionProps);
-        logger.info("Database connection established");
-
-
-        logger.info("Now checking database integrity..");
-        checkDatabaseTables();
         Base.open("com.mysql.jdbc.Driver", CONN_PREFIX + HOST + ":" + PORT + "/" + NAME, USER, PASS);
         logger.info("Database integrity verified and ActiveJDBC connection initialized");
-    }
-
-    /**
-     * Checks the integrity of the database in place. Uses the databasestructure.cfg file to compare
-     *
-     * @throws SQLException When database structure doesn't match the configuration file
-     */
-    private static void checkDatabaseTables() throws SQLException {
-
-        getRequiredTableData();
-        DatabaseMetaData metadata = CONNECTION.getMetaData();
-        ResultSet data = metadata.getTables(null, null, "%", null);
-
-        //checking tables
-        List<String> tablesInDatabase = new ArrayList<String>();
-        while (data.next()) {
-            tablesInDatabase.add(data.getString(3));
-        }
-        data.close();
-
-        for (Map.Entry<String, List<String>> entry : databaseRequirements.entrySet()) {
-            if (!tablesInDatabase.contains(entry.getKey())) {
-                throw new SQLException("The database doesn't contain the " + entry.getKey() + "table!");
-            }
-            ResultSet columnData = metadata.getColumns("", "", entry.getKey(), "");
-            List<String> columnNames = new ArrayList<String>();
-
-            while (columnData.next()) {
-                columnNames.add(columnData.getString(4));
-            }
-            columnData.close();
-            for (String column : entry.getValue()) {
-                if (!columnNames.contains(column)) {
-                    throw new SQLException("The " + entry.getKey() + " table doesn't contains the " + column + " column!");
-                }
-            }
-
-
-        }
-
-    }
-
-    /**
-     * Loads the required table data from the cfg file
-     */
-    private static void getRequiredTableData() {
-        databaseRequirements = new HashMap<String, List<String>>();
-
-        Properties configFile = new java.util.Properties();
-        try {
-            configFile.load(new FileInputStream("databasestructure.cfg"));
-
-            String tables = configFile.getProperty("tables");
-            String[] table = tables.split(";");
-
-            for (String t : table) {
-                String[] colums = configFile.getProperty(t + "_tables").split(";");
-                databaseRequirements.put(t, Arrays.asList(colums));
-            }
-
-        } catch (IOException e) {
-            logger.warn("", e);
-        }
     }
 
     /**
@@ -159,14 +86,6 @@ public class Database {
         } catch (IOException e) {
             logger.warn("Couldn't store configuration!", e);
         }
-    }
-
-    /**
-     * Getter for the connection field
-     * @return current database connection
-     */
-    public static Connection getCONNECTION() {
-        return CONNECTION;
     }
 
     /**
