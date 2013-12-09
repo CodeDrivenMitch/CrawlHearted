@@ -21,4 +21,19 @@ public class Url extends Model {
         Statistics.getInstance().urlFlagChanged(getInteger("crawler_id"), getFlag(), flag);
         this.setString("flag", flag.toString());
     }
+
+    public void isTrulyDead() {
+        if(this.getFlag() == Flag.RETRY) {
+            int currentNumber = this.getInteger("number_of_retries");
+            //TODO: add settings
+            if(currentNumber + 1 >= 4) {
+                this.setFlag(Flag.DEAD);
+            } else {
+                this.setInteger("number_of_retries", currentNumber + 1);
+            }
+        } else {
+            this.setFlag(Flag.RETRY);
+            this.setInteger("number_of_retries", 1);
+        }
+    }
 }
