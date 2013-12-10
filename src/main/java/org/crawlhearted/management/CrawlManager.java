@@ -95,7 +95,7 @@ public class CrawlManager extends Model implements Runnable {
     private Url getUrlToCrawl() {
         Url found = null;
 
-        for(Flag f : this.flagPriority) {
+        for(Flag f : flagPriority) {
             found = this.urlList.getFirstWithFlag(f);
             if( found != null) {
                 break;
@@ -112,20 +112,19 @@ public class CrawlManager extends Model implements Runnable {
             processor.processDocument(document);
             url.setFlag(Flag.VISITED);
         } catch (UnsupportedMimeTypeException e) {
+            logger.debug("Url was file!", e);
             url.setFlag(Flag.FILE);
         } catch (IOException e) {
-            url.isTrulyDead();
+            logger.debug("Url connection timed out.");
+            url.failedConnection();
         }
-
-        url.saveIt();
     }
 
     private void sleepForPolicy(Date startTime, Date endTime) {
-        // TODO: Add settings
-
         int sleepPolicy = 4000;
         long timeToSleep = sleepPolicy - (endTime.getTime() - startTime.getTime());
 
+        logger.debug("Time taken was " + (sleepPolicy - timeToSleep) + " miliseconds!");
         if(timeToSleep > 0) {
             try {
                 sleep(timeToSleep);
@@ -138,6 +137,7 @@ public class CrawlManager extends Model implements Runnable {
     public void addUrlToList(Url url) {
         if(!this.urlList.contains(url)) {
             this.urlList.add(url);
+            logger.debug("Url added: " + url.toString() + " - Valid: " + url.isValid());
         }
     }
 

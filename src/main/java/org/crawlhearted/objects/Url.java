@@ -17,10 +17,14 @@ public class Url extends Model {
     }
 
     public void setFlag(Flag flag) {
-        this.set("flag", flag.toString());
+        if(flag != null) {
+            this.set("flag", flag.toString());
+        } else {
+            throw new NullPointerException("Flag can not be null!");
+        }
     }
 
-    public void isTrulyDead() {
+    public void failedConnection() {
         if(this.getFlag() == Flag.RETRY) {
             int currentNumber = this.getInteger("number_of_retries");
             //TODO: add settings
@@ -33,6 +37,11 @@ public class Url extends Model {
             this.setFlag(Flag.RETRY);
             this.setInteger("number_of_retries", 1);
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getString("url").hashCode();
     }
 
     @Override

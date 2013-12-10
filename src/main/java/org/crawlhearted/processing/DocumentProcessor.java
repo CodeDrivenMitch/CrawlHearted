@@ -20,7 +20,7 @@ public class DocumentProcessor {
 
     private DocumentProcessor(CrawlManager crawlManager) {
         this.crawlManager = crawlManager;
-        this.blacklist = new Blacklist(crawlManager.getInteger("id"));
+        this.blacklist = new Blacklist(crawlManager);
     }
 
     public void processDocument(Document document) {
