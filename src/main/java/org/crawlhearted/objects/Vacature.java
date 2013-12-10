@@ -19,6 +19,7 @@ public class Vacature extends Model {
     private static final Map<ProcessData, String> databaseMap = createDatabaseMap();
     private static Logger logger = LoggerFactory.getLogger(Vacature.class);
 
+
     private static Map<ProcessData, String> createDatabaseMap() {
         Map<ProcessData, String> map = new HashMap<ProcessData, String>();
 

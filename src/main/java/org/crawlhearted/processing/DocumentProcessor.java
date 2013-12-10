@@ -76,6 +76,7 @@ public class DocumentProcessor {
     private void processContent() {
         if (docHasRequirements(ProcessData.REQUIREMENTFORVACATURE)) {
             processVacature().saveSafely();
+            logger.info("saved");
         } else {
             removeAnyVacaturesFromUrl();
         }
@@ -103,16 +104,17 @@ public class DocumentProcessor {
     private void removeAnyVacaturesFromUrl() {
         List<Vacature> list = Vacature.where("url_id = ?", urlOfDocument.getInteger("id"));
 
+        logger.info("checking list");
         for(Vacature v : list) {
             v.setInteger("active", 0);
             v.save();
         }
+
+        logger.info("done");
     }
 
     private Vacature processVacature() {
-        // Save the url to get an id
-        urlOfDocument.saveIt();
-
+        logger.info("processing");
         Vacature vacature = new Vacature();
 
         for(Map.Entry<ProcessData, String> entry : this.settingsMap.entrySet()) {
@@ -124,6 +126,7 @@ public class DocumentProcessor {
         vacature.setInteger("url_id", this.urlOfDocument.getInteger("id"));
         vacature.generateHash();
 
+        logger.info("saving vacature");
         return vacature;
     }
 }

@@ -54,6 +54,14 @@ public class CrawlManager extends Model implements Runnable {
             urlList.add(u);
             Statistics.getInstance().urlFlagChanged(getInteger("id"), null, u.getFlag());
         }
+
+        if(list.isEmpty()) {
+            Url url = new Url();
+            url.setFlag(Flag.FOUND);
+            url.setString(Url.COL_URL, this.getString("base_url"));
+            url.setInteger(Url.COL_CRAWLER_ID, this.getInteger("id"));
+            this.addUrlToList(url);
+        }
     }
 
     /**
@@ -117,6 +125,8 @@ public class CrawlManager extends Model implements Runnable {
         } catch (IOException e) {
             logger.debug("Url connection timed out.");
             url.failedConnection();
+        } finally {
+            url.saveIt();
         }
     }
 
@@ -136,6 +146,7 @@ public class CrawlManager extends Model implements Runnable {
 
     public void addUrlToList(Url url) {
         if(!this.urlList.contains(url)) {
+            url.saveIt();
             this.urlList.add(url);
             logger.debug("Url added: " + url.toString() + " - Valid: " + url.isValid());
         }

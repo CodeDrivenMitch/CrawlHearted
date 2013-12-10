@@ -1,6 +1,5 @@
 package org.crawlhearted.objects;
 
-import org.crawlhearted.database.UniquenessValidator;
 import org.javalite.activejdbc.Model;
 
 import java.util.Date;
@@ -19,12 +18,11 @@ public class Url extends Model {
     public static final String COL_RETRIES = "number_of_retries";
     public static final String COL_FIRST_SEEN = "first_visited";
     public static final String COL_LAST_SEEN = "last_visited";
+    public static final String COL_CRAWLER_ID = "crawler_id";
 
     // Model validors
     static {
-        validatePresenceOf(COL_ID, COL_URL, COL_FLAG);
-        validateNumericalityOf(COL_RETRIES);
-        validateWith(new UniquenessValidator(COL_URL));
+        validatePresenceOf(COL_URL, COL_FLAG, COL_CRAWLER_ID);
     }
 
     /**
