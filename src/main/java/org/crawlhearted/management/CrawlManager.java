@@ -47,7 +47,7 @@ public class CrawlManager extends Model implements Runnable {
     private void initializeList() {
         // Initialize the list
         urlList = new UrlList();
-        List<Url> list = Url.find("crawler_id = " + this.getInteger("id"));
+        List<Url> list = Url.find("crawler_id = ?", this.getInteger("id"));
 
         // Register the urls at the statistics
         for (Url u : list) {
@@ -109,7 +109,7 @@ public class CrawlManager extends Model implements Runnable {
         try {
             logger.info("Crawling " + url.getString("url"));
             Document document = Jsoup.connect(url.getString("url")).get();
-            processor.processDocument(document);
+            processor.processDocument(url, document);
             url.setFlag(Flag.VISITED);
         } catch (UnsupportedMimeTypeException e) {
             logger.debug("Url was file!", e);

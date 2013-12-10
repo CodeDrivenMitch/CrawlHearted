@@ -45,6 +45,11 @@ public class Url extends Model {
     }
 
     @Override
+    public String toString() {
+        return this.getString("url");
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if(obj.getClass().equals(Url.class)) {
             Url other = (Url) obj;
