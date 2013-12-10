@@ -76,6 +76,8 @@ public class DocumentProcessor {
     private void processContent() {
         if (docHasRequirements(ProcessData.REQUIREMENTFORVACATURE)) {
             processVacature().saveSafely();
+        } else {
+            removeAnyVacaturesFromUrl();
         }
     }
 
@@ -96,6 +98,15 @@ public class DocumentProcessor {
         }
 
         return hasIt;
+    }
+
+    private void removeAnyVacaturesFromUrl() {
+        List<Vacature> list = Vacature.where("url_id = ?", urlOfDocument.getInteger("id"));
+
+        for(Vacature v : list) {
+            v.setInteger("active", 0);
+            v.save();
+        }
     }
 
     private Vacature processVacature() {

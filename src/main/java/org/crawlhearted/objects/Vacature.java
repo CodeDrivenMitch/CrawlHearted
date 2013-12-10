@@ -38,10 +38,10 @@ public class Vacature extends Model {
     public void generateHash() {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
-            byte[] array = md.digest(this.getString("omschrijving").toString().getBytes());
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < array.length; ++i) {
-                sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1, 3));
+            byte[] array = md.digest(this.getString("omschrijving").getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte anArray : array) {
+                sb.append(Integer.toHexString((anArray & 0xFF) | 0x100).substring(1, 3));
             }
             this.setString("hash", sb.toString());
         } catch (java.security.NoSuchAlgorithmException e) {
@@ -53,11 +53,8 @@ public class Vacature extends Model {
 
         List<Vacature> result = Vacature.find("url_id = ?", this.getString("url_id")).load();
         if (!result.isEmpty()) {
-            logger.info("damn");
             // already one!
             Vacature vacature = result.get(1);
-
-            logger.info("processing");
             if (!vacature.getString("hash").equals(this.getString("hash"))) {
                 // we got a new version! Set the old one inactive
                 vacature.setInteger("active", 0);
@@ -67,16 +64,15 @@ public class Vacature extends Model {
                 this.save();
             }
         } else {
-            logger.info("else..");
             List<Vacature> list = Vacature.find("hash = ?", this.getString("hash")).load();
             if (list.isEmpty()) {
                 this.setInteger("version", 1);
                 this.setInteger("active", 1);
-
-                logger.info("saving");
-                this.insert();
+                this.saveIt();
             }
         }
     }
+
+
 
 }
