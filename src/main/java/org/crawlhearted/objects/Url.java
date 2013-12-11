@@ -2,6 +2,7 @@ package org.crawlhearted.objects;
 
 import org.javalite.activejdbc.Model;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -44,10 +45,10 @@ public class Url extends Model {
             this.set(COL_FLAG, flag.toString());
 
             if(flag == Flag.VISITED) {
-                Date now = new Date();
-                this.setDate(COL_LAST_SEEN, now);
-                if(this.getDate(COL_FIRST_SEEN) == null) {
-                    this.setDate(COL_FIRST_SEEN, now);
+                Timestamp now = new Timestamp(new Date().getTime());
+                this.setTimestamp(COL_LAST_SEEN, now);
+                if(this.getTimestamp(COL_FIRST_SEEN) == null) {
+                    this.setTimestamp(COL_FIRST_SEEN, now);
                 }
             }
         } else {

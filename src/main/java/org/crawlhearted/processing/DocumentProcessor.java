@@ -35,10 +35,10 @@ public class DocumentProcessor {
 
         settingsMap = new HashMap<ProcessData, String>();
 
-        List<ProcessSetting> databaseList = ProcessSetting.find("crawler_id = ?", crawlManager.getInteger("id"));
+        List<ProcessSetting> databaseList = ProcessSetting.find(ProcessSetting.COL_CRAWLER_ID + " = ?", crawlManager.getInteger("id"));
         for (ProcessSetting processSetting : databaseList) {
-            ProcessData key = ProcessData.valueOf(processSetting.getString("setting_name"));
-            String value = processSetting.getString("setting_value");
+            ProcessData key = ProcessData.valueOf(processSetting.getString(ProcessSetting.COL_SETTING_KEY));
+            String value = processSetting.getString(ProcessSetting.COL_SETTING_VALUE);
 
             settingsMap.put(key, value);
         }
@@ -66,8 +66,8 @@ public class DocumentProcessor {
             if (blacklist.urlAllowed(u)) {
                 Url url = new Url();
                 url.setFlag(Flag.FOUND);
-                url.setString("url", u);
-                url.setInteger("crawler_id", crawlManager.getInteger("id"));
+                url.setString(Url.COL_URL, u);
+                url.setInteger(Url.COL_CRAWLER_ID, crawlManager.getInteger("id"));
                 crawlManager.addUrlToList(url);
             }
         }
@@ -75,46 +75,41 @@ public class DocumentProcessor {
 
     private void processContent() {
         if (docHasRequirements(ProcessData.REQUIREMENTFORVACATURE)) {
-            processVacature().saveSafely();
-            logger.info("saved");
+            Vacature vacature = processVacature();
+            vacature.saveSafely();
         } else {
             removeAnyVacaturesFromUrl();
         }
     }
 
     private boolean docHasRequirements(ProcessData data) {
-        boolean hasIt = true;
         String requirements = settingsMap.get(data);
         if (requirements != null && !requirements.isEmpty()) {
             String req[] = requirements.split(";");
 
             for (String r : req) {
                 if (documentToProcess.select(r).text().isEmpty()) {
-                    hasIt = false;
+                    return false;
                 }
             }
         } else {
-            logger.warn("Could not determine " + data.toString() + " for url " + this.urlOfDocument.getString("url"));
-            hasIt = false;
+            logger.warn("Could not determine " + data.toString() + " for url " + this.urlOfDocument.getString(Url.COL_URL));
+            return false;
         }
 
-        return hasIt;
+        return true;
     }
 
     private void removeAnyVacaturesFromUrl() {
-        List<Vacature> list = Vacature.where("url_id = ?", urlOfDocument.getInteger("id"));
+        List<Vacature> list = Vacature.where(Vacature.COL_URL_ID + " = ?", urlOfDocument.getInteger(Url.COL_ID));
 
-        logger.info("checking list");
         for(Vacature v : list) {
-            v.setInteger("active", 0);
+            v.setInteger(Vacature.COL_ACTIVE, 0);
             v.save();
         }
-
-        logger.info("done");
     }
 
     private Vacature processVacature() {
-        logger.info("processing");
         Vacature vacature = new Vacature();
 
         for(Map.Entry<ProcessData, String> entry : this.settingsMap.entrySet()) {
@@ -123,10 +118,9 @@ public class DocumentProcessor {
             }
         }
 
-        vacature.setInteger("url_id", this.urlOfDocument.getInteger("id"));
+        vacature.setInteger(Vacature.COL_URL_ID, this.urlOfDocument.getInteger(Url.COL_ID));
         vacature.generateHash();
 
-        logger.info("saving vacature");
         return vacature;
     }
 }

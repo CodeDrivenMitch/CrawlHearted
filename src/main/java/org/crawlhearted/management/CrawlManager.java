@@ -105,12 +105,12 @@ public class CrawlManager extends Model implements Runnable {
 
         for(Flag f : flagPriority) {
             found = this.urlList.getFirstWithFlag(f);
-            if( found != null) {
-                break;
+            if( found.getString(Url.COL_URL) != null) {
+                return found;
             }
         }
 
-        return found;
+        return null;
     }
 
     private void crawlUrl(Url url) {
