@@ -1,10 +1,10 @@
-package org.crawlhearted.processing;
+package org.jobhearted.crawler.processing;
 
-import org.crawlhearted.management.CrawlManager;
-import org.crawlhearted.objects.Blacklist;
-import org.crawlhearted.objects.Flag;
-import org.crawlhearted.objects.Url;
-import org.crawlhearted.objects.Vacature;
+import org.jobhearted.crawler.management.CrawlManager;
+import org.jobhearted.crawler.objects.Blacklist;
+import org.jobhearted.crawler.objects.Flag;
+import org.jobhearted.crawler.objects.Url;
+import org.jobhearted.crawler.objects.Vacature;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;

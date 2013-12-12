@@ -7,7 +7,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>org.org.crawlhearted</name>
+    <name>org.org.jobhearted.crawler.crawlhearted</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -26,7 +26,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>org.crawlhearted.App</mainClass>
+                            <mainClass>org.jobhearted.crawler.crawlhearted.App</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

@@ -1,6 +1,6 @@
-package org.crawlhearted.processing;
+package org.jobhearted.crawler.processing;
 
-import org.crawlhearted.objects.Vacature;
+import org.jobhearted.crawler.objects.Vacature;
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Many2Many;
 

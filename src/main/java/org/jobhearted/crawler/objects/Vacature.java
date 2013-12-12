@@ -1,7 +1,7 @@
-package org.crawlhearted.objects;
+package org.jobhearted.crawler.objects;
 
-import org.crawlhearted.processing.ProcessData;
-import org.crawlhearted.processing.Skill;
+import org.jobhearted.crawler.processing.ProcessData;
+import org.jobhearted.crawler.processing.Skill;
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Many2Many;
 import org.slf4j.Logger;

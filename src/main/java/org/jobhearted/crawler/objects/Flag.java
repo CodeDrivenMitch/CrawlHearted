@@ -1,4 +1,4 @@
-package org.crawlhearted.objects;
+package org.jobhearted.crawler.objects;
 
 /**
  * Created with IntelliJ IDEA for JobHearted.

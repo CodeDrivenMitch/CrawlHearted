@@ -1,6 +1,6 @@
-package org.crawlhearted.objects;
+package org.jobhearted.crawler.objects;
 
-import org.crawlhearted.management.CrawlManager;
+import org.jobhearted.crawler.management.CrawlManager;
 
 import java.util.ArrayList;
 import java.util.List;

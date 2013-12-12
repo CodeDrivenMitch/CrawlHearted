@@ -1,4 +1,4 @@
-package org.crawlhearted.processing;
+package org.jobhearted.crawler.processing;
 
 import org.javalite.activejdbc.Model;
 
@@ -10,7 +10,6 @@ import org.javalite.activejdbc.Model;
  */
 public class Skill extends Model {
     // Database fields
-    public static final String COL_ID = "id";
     public static final String COL_SKILL = "skill";
 
     // Model validations

@@ -1,7 +1,7 @@
-package org.crawlhearted.management;
+package org.jobhearted.crawler.management;
 
-import org.crawlhearted.database.Database;
-import org.crawlhearted.exceptions.UnableToStartManagerException;
+import org.jobhearted.crawler.database.Database;
+import org.jobhearted.crawler.exceptions.UnableToStartManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +51,7 @@ public class ProcessManager {
      * Creates a Process Manager
      * TODO: Might change this to singleton
      * @return the new process manager
-     * @throws org.crawlhearted.exceptions.UnableToStartManagerException
+     * @throws org.jobhearted.crawler.exceptions.UnableToStartManagerException
      *          Error during process manager startup
      */
     public static ProcessManager createProcessManager() throws UnableToStartManagerException {

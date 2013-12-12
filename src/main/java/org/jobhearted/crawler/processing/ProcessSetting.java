@@ -1,4 +1,4 @@
-package org.crawlhearted.processing;
+package org.jobhearted.crawler.processing;
 
 import org.javalite.activejdbc.Model;
 

@@ -1,10 +1,10 @@
-package org.crawlhearted.management;
+package org.jobhearted.crawler.management;
 
-import org.crawlhearted.database.Database;
-import org.crawlhearted.objects.Flag;
-import org.crawlhearted.objects.Url;
-import org.crawlhearted.objects.UrlList;
-import org.crawlhearted.processing.DocumentProcessor;
+import org.jobhearted.crawler.database.Database;
+import org.jobhearted.crawler.objects.Flag;
+import org.jobhearted.crawler.objects.Url;
+import org.jobhearted.crawler.objects.UrlList;
+import org.jobhearted.crawler.processing.DocumentProcessor;
 import org.javalite.activejdbc.Model;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
@@ -101,7 +101,7 @@ public class CrawlManager extends Model implements Runnable {
     }
 
     private Url getUrlToCrawl() {
-        Url found = null;
+        Url found;
 
         for(Flag f : flagPriority) {
             found = this.urlList.getFirstWithFlag(f);

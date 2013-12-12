@@ -1,6 +1,6 @@
-package org.crawlhearted.management;
+package org.jobhearted.crawler.management;
 
-import org.crawlhearted.objects.Flag;
+import org.jobhearted.crawler.objects.Flag;
 
 /**
  * Created with IntelliJ IDEA for JobHearted.

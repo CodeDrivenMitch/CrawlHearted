@@ -1,4 +1,4 @@
-package org.crawlhearted.database;
+package org.jobhearted.crawler.database;
 
 import org.javalite.activejdbc.Base;
 import org.slf4j.Logger;
@@ -7,8 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.*;
-import java.util.*;
+import java.util.Properties;
 
 /**
  * The Database class is used for opening a database connection and maintaining it.
@@ -37,7 +36,6 @@ public class Database {
     /**
      * Opens a JDBC database connection as well as active JDBC connection if the database structure is correct
      *
-     * @throws SQLException Thrown when connection failed or database structure is incorrect
      */
     public static void openDatabaseConnection() {
         if(!Base.hasConnection()) {

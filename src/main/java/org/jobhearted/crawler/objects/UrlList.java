@@ -1,4 +1,4 @@
-package org.crawlhearted.objects;
+package org.jobhearted.crawler.objects;
 
 import java.util.ArrayList;
 

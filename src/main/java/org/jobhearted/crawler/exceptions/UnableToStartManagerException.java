@@ -1,4 +1,4 @@
-package org.crawlhearted.exceptions;
+package org.jobhearted.crawler.exceptions;
 
 /**
  * Created with IntelliJ IDEA for JobHearted.
