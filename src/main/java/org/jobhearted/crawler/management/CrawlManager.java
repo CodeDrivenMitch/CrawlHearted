@@ -52,7 +52,6 @@ public class CrawlManager extends Model implements Runnable {
         // Register the urls at the statistics
         for (Url u : list) {
             urlList.add(u);
-            Statistics.getInstance().urlFlagChanged(getInteger("id"), null, u.getFlag());
         }
 
         if(list.isEmpty()) {
