@@ -24,8 +24,7 @@ import static java.lang.Thread.sleep;
 public class CrawlManager extends Model implements Runnable {
     private static Logger logger = LoggerFactory.getLogger(CrawlManager.class);
     //State fields
-    private boolean running = true;
-    private boolean paused = true;
+    private CrawlmanagerState state;
     //Fields used for crawling
     private UrlList urlList;
     private static Flag[] flagPriority = {Flag.FOUND, Flag.RETRY, Flag.RECRAWL};
@@ -71,10 +70,12 @@ public class CrawlManager extends Model implements Runnable {
         // open DB conn for this thread
         Database.openDatabaseConnection();
 
-        while (running) {
-            while (paused) {
+        while (this.state != CrawlmanagerState.STOPPING) {
+
+            while (this.state == CrawlmanagerState.PAUSING || this.state == CrawlmanagerState.PAUSED) {
+                this.setState(CrawlmanagerState.PAUSED);
                 try {
-                    sleep(100);
+                    sleep(1000);
                 } catch (InterruptedException e) {
                     logger.warn("", e);
                 }
@@ -83,6 +84,8 @@ public class CrawlManager extends Model implements Runnable {
             // do the crawling :)
             doTheCrawl();
         }
+
+        this.setState(CrawlmanagerState.STOPPED);
     }
 
     private void doTheCrawl() {
@@ -151,39 +154,11 @@ public class CrawlManager extends Model implements Runnable {
         }
     }
 
-    /**
-     * Checks if the thread is running
-     *
-     * @return running
-     */
-    public boolean isRunning() {
-        return running;
+    public CrawlmanagerState getState() {
+        return this.state;
     }
 
-    /**
-     * Sets the running field to the specified value. If false, the runnable will exit its while loop and stop execution
-     *
-     * @param running value running should be set to
-     */
-    public void setRunning(boolean running) {
-        this.running = running;
-    }
-
-    /**
-     * Checks if the Runnable is paused
-     *
-     * @return paused
-     */
-    public boolean isPaused() {
-        return paused;
-    }
-
-    /**
-     * Sets the paused field to the specified value. while paused is true, thread will sleep.
-     *
-     * @param paused paused
-     */
-    public void setPaused(boolean paused) {
-        this.paused = paused;
+    public void setState(CrawlmanagerState newState) {
+        this.state = newState;
     }
 }

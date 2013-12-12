@@ -21,7 +21,7 @@ public class CrawlingApplication {
         try {
             ProcessManager processManager = ProcessManager.createProcessManager();
 
-            // launching gui if necessary
+            // launching org.jobhearted.crawler.gui if necessary
             List<String> arguments = Arrays.asList(args);
             if(!arguments.contains("-nogui")) {
                 launchGui();

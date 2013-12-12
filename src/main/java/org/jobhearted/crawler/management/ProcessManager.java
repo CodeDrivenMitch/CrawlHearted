@@ -42,7 +42,7 @@ public class ProcessManager {
             crawlManager.initialize();
             crawlExecutor.submit(crawlManager);
             logger.debug("CrawlManager " + crawlManager.getString("id") + " succefully started!");
-            crawlManager.setPaused(false);
+            crawlManager.setState(CrawlmanagerState.RUNNING);
         }
 
     }
