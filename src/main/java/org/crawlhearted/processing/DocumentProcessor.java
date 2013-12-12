@@ -91,7 +91,7 @@ public class DocumentProcessor {
             Vacature vacature = processVacature();
 
             if (vacature.saveSafely()) {
-                processSkills(vacature);
+                processSkillsAndEducation(vacature);
             }
         } else {
             removeAnyVacaturesFromUrl();
@@ -142,15 +142,13 @@ public class DocumentProcessor {
     }
 
 
-    private void processSkills(Vacature vacature) {
-        logger.info("looking for skills:);");
+    private void processSkillsAndEducation(Vacature vacature) {
         String[] words = vacature.getString(Vacature.COL_OMSCHRIJVING).split(" ");
         for (String w : words) {
             for (Skill skill : allSkills) {
                 for(String s : illegalCharacter) {
                     w = w.replace(s, "");
                 }
-                //logger.info("checking for " + skill.getString("skill"));
                 if (w.equalsIgnoreCase(skill.getString("skill"))) {
                     if (!vacature.getAll(Skill.class).contains(skill)) {
                         logger.info("found skill " + skill.getString("skill"));

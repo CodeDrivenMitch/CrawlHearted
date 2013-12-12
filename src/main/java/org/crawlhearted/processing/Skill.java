@@ -17,4 +17,13 @@ public class Skill extends Model {
     static {
         validatePresenceOf(COL_SKILL);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj.getClass().equals(this.getClass())) {
+            if(this.getString(COL_SKILL).equals(((Skill) obj).getString(COL_SKILL))) return true;
+        }
+        return false;
+
+    }
 }
