@@ -23,4 +23,16 @@ public class Education extends Model {
         validateNumericalityOf(COL_LEVEL);
         validatePresenceOf(COL_EDUCATION, COL_LEVEL);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!obj.getClass().equals(Education.class)) {
+            return false;
+        }
+
+        Education education = (Education) obj;
+
+        return education.getInteger(Education.COL_LEVEL).equals(this.getInteger(Education.COL_LEVEL));
+
+    }
 }

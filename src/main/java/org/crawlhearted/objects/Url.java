@@ -1,6 +1,8 @@
 package org.crawlhearted.objects;
 
 import org.javalite.activejdbc.Model;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -12,6 +14,7 @@ import java.util.Date;
  * Time: 7:53 PM
  */
 public class Url extends Model {
+    private static Logger logger = LoggerFactory.getLogger(Url.class);
     // Database field names
     public static final String COL_ID = "id";
     public static final String COL_URL = "url";
@@ -43,7 +46,6 @@ public class Url extends Model {
     public void setFlag(Flag flag) {
         if(flag != null) {
             this.set(COL_FLAG, flag.toString());
-
             if(flag == Flag.VISITED) {
                 Timestamp now = new Timestamp(new Date().getTime());
                 this.setTimestamp(COL_LAST_SEEN, now);

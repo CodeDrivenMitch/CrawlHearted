@@ -17,9 +17,11 @@ public class UrlTest {
 
         assertTrue(url.getFlag() == Flag.FOUND);
 
+        url.setFlag(Flag.VISITED);
         // Also test is last_visited and first_visited is set, as required
-        assertTrue(url.get(Url.COL_FIRST_SEEN) != null);
-        assertTrue(url.get(Url.COL_LAST_SEEN) != null);
+        assertTrue(url.getTimestamp(Url.COL_LAST_SEEN) != null);
+        assertTrue(url.getTimestamp(Url.COL_FIRST_SEEN) != null);
+
     }
 
     @Test
