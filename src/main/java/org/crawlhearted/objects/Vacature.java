@@ -1,7 +1,9 @@
 package org.crawlhearted.objects;
 
 import org.crawlhearted.processing.ProcessData;
+import org.crawlhearted.processing.Skill;
 import org.javalite.activejdbc.Model;
+import org.javalite.activejdbc.annotations.Many2Many;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +14,7 @@ import java.util.Map;
 /**
  * The vacature data class. This is an ActiveJDBC dataobject.
  */
+@Many2Many(other = Skill.class, join = "vacatures_skills", sourceFKName = "skill_id", targetFKName = "vacature_id")
 public class Vacature extends Model {
     private static Logger logger = LoggerFactory.getLogger(Vacature.class);
     private static final Map<ProcessData, String> databaseMap = createDatabaseMap();
@@ -84,21 +87,23 @@ public class Vacature extends Model {
      *  Saves the Vacature safely to the database. Checking for doubles in the database by both url id and hash,
      *  so there's no double data in the database.
      */
-    public void saveSafely() {
+    public boolean saveSafely() {
 
         // Search if the url of the vacature already has one in the database
         List<Vacature> result = Vacature.find(COL_URL_ID + " = ?", this.getString(COL_URL_ID));
         if (!result.isEmpty()) {
             // already one!
-            Vacature vacature = result.get(1);
+            Vacature vacature = (Vacature) result.toArray()[0];
             if (!vacature.getString(COL_HASH).equals(this.getString(COL_HASH))) {
                 // we got a new version! Set the old one inactive
                 vacature.setInteger(COL_ACTIVE, 0);
+                vacature.removeAllSkills();
                 vacature.save();
 
                 // and update the version of the new one
                 this.setInteger(COL_VERSION, vacature.getInteger(COL_VERSION) + 1);
                 this.save();
+                logger.info("new version!");
             }
         } else {
             // See if a vacature with the same hash is already in the database
@@ -108,7 +113,18 @@ public class Vacature extends Model {
                 this.setInteger(COL_VERSION, 1);
                 this.setInteger(COL_ACTIVE, 1);
                 this.save();
+                return true;
+            } else {
+                logger.info("was already in db!");
             }
+        }
+
+        return false;
+    }
+
+    public void removeAllSkills() {
+        for(Skill s : this.getAll(Skill.class)) {
+            this.remove(s);
         }
     }
 

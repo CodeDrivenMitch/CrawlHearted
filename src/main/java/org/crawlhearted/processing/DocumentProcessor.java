@@ -21,13 +21,20 @@ import java.util.Map;
  * Date: 12/9/13
  * Time: 12:28 PM
  */
+
+
 public class DocumentProcessor {
     private static Logger logger = LoggerFactory.getLogger(DocumentProcessor.class);
+    private static List<Skill> allSkills;
     Map<ProcessData, String> settingsMap;
     private CrawlManager crawlManager;
     private Blacklist blacklist;
     private Document documentToProcess;
     private Url urlOfDocument;
+
+    String[] illegalCharacter = {
+            "(", ")", ";", ".", ",", ":", "{", "}", "[", "]", "*", "&", "^", "%", "$", "@", "!", "?"
+    };
 
     private DocumentProcessor(CrawlManager crawlManager) {
         this.crawlManager = crawlManager;
@@ -44,6 +51,12 @@ public class DocumentProcessor {
         }
 
         logger.info("Loaded " + settingsMap.size() + " Setting entries!");
+
+        if (allSkills == null) {
+            allSkills = Skill.findAll();
+            logger.info("Loaded " + allSkills.size() + " Skill entries!");
+        }
+
     }
 
     public static DocumentProcessor createProcessor(CrawlManager crawlManager) {
@@ -76,7 +89,10 @@ public class DocumentProcessor {
     private void processContent() {
         if (docHasRequirements(ProcessData.REQUIREMENTFORVACATURE)) {
             Vacature vacature = processVacature();
-            vacature.saveSafely();
+
+            if (vacature.saveSafely()) {
+                processSkills(vacature);
+            }
         } else {
             removeAnyVacaturesFromUrl();
         }
@@ -103,8 +119,9 @@ public class DocumentProcessor {
     private void removeAnyVacaturesFromUrl() {
         List<Vacature> list = Vacature.where(Vacature.COL_URL_ID + " = ?", urlOfDocument.getInteger(Url.COL_ID));
 
-        for(Vacature v : list) {
+        for (Vacature v : list) {
             v.setInteger(Vacature.COL_ACTIVE, 0);
+            v.removeAllSkills();
             v.save();
         }
     }
@@ -112,8 +129,8 @@ public class DocumentProcessor {
     private Vacature processVacature() {
         Vacature vacature = new Vacature();
 
-        for(Map.Entry<ProcessData, String> entry : this.settingsMap.entrySet()) {
-            if(entry.getKey() != ProcessData.REQUIREMENTFORVACATURE) {
+        for (Map.Entry<ProcessData, String> entry : this.settingsMap.entrySet()) {
+            if (entry.getKey() != ProcessData.REQUIREMENTFORVACATURE) {
                 vacature.putProperty(entry.getKey(), this.documentToProcess.select(entry.getValue()).text());
             }
         }
@@ -122,5 +139,26 @@ public class DocumentProcessor {
         vacature.generateHash();
 
         return vacature;
+    }
+
+
+    private void processSkills(Vacature vacature) {
+        logger.info("looking for skills:);");
+        String[] words = vacature.getString(Vacature.COL_OMSCHRIJVING).split(" ");
+        for (String w : words) {
+            for (Skill skill : allSkills) {
+                for(String s : illegalCharacter) {
+                    w = w.replace(s, "");
+                }
+                //logger.info("checking for " + skill.getString("skill"));
+                if (w.equalsIgnoreCase(skill.getString("skill"))) {
+                    if (!vacature.getAll(Skill.class).contains(skill)) {
+                        logger.info("found skill " + skill.getString("skill"));
+                        vacature.add(skill);
+                    }
+                }
+
+            }
+        }
     }
 }
