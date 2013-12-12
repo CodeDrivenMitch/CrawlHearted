@@ -88,7 +88,6 @@ public class Vacature extends Model {
      *  so there's no double data in the database.
      */
     public boolean saveSafely() {
-
         // Search if the url of the vacature already has one in the database
         List<Vacature> result = Vacature.find(COL_URL_ID + " = ?", this.getString(COL_URL_ID));
         if (!result.isEmpty()) {
@@ -113,6 +112,7 @@ public class Vacature extends Model {
                 this.setInteger(COL_VERSION, 1);
                 this.setInteger(COL_ACTIVE, 1);
                 this.save();
+                logger.info("saved");
                 return true;
             } else {
                 logger.info("was already in db!");

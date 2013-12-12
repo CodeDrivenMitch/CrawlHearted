@@ -26,15 +26,15 @@ import java.util.Map;
 public class DocumentProcessor {
     private static Logger logger = LoggerFactory.getLogger(DocumentProcessor.class);
     private static List<Skill> allSkills;
+    private static List<Education> allEducations;
     Map<ProcessData, String> settingsMap;
+    String[] illegalCharacter = {
+            "(", ")", ";", ".", ",", ":", "{", "}", "[", "]", "*", "&", "^", "%", "$", "@", "!", "?"
+    };
     private CrawlManager crawlManager;
     private Blacklist blacklist;
     private Document documentToProcess;
     private Url urlOfDocument;
-
-    String[] illegalCharacter = {
-            "(", ")", ";", ".", ",", ":", "{", "}", "[", "]", "*", "&", "^", "%", "$", "@", "!", "?"
-    };
 
     private DocumentProcessor(CrawlManager crawlManager) {
         this.crawlManager = crawlManager;
@@ -55,6 +55,11 @@ public class DocumentProcessor {
         if (allSkills == null) {
             allSkills = Skill.findAll();
             logger.info("Loaded " + allSkills.size() + " Skill entries!");
+        }
+
+        if (allEducations == null) {
+            allEducations = Education.findAll();
+            logger.info("Loaded " + allEducations.size() + " Education entries!");
         }
 
     }
@@ -89,7 +94,7 @@ public class DocumentProcessor {
     private void processContent() {
         if (docHasRequirements(ProcessData.REQUIREMENTFORVACATURE)) {
             Vacature vacature = processVacature();
-
+            logger.info("validvacature");
             if (vacature.saveSafely()) {
                 processSkillsAndEducation(vacature);
             }
@@ -131,7 +136,11 @@ public class DocumentProcessor {
 
         for (Map.Entry<ProcessData, String> entry : this.settingsMap.entrySet()) {
             if (entry.getKey() != ProcessData.REQUIREMENTFORVACATURE) {
-                vacature.putProperty(entry.getKey(), this.documentToProcess.select(entry.getValue()).text());
+                if(!entry.getValue().equals("NULL")) {
+                    vacature.putProperty(entry.getKey(), this.documentToProcess.select(entry.getValue()).text());
+                } else {
+                    vacature.putProperty(entry.getKey(), "");
+                }
             }
         }
 
@@ -141,21 +150,33 @@ public class DocumentProcessor {
         return vacature;
     }
 
-
     private void processSkillsAndEducation(Vacature vacature) {
         String[] words = vacature.getString(Vacature.COL_OMSCHRIJVING).split(" ");
         for (String w : words) {
+            // Filter illegal characters
+            for (String s : illegalCharacter) {
+                w = w.replace(s, "");
+            }
+
+            // Check if the word is a skill
             for (Skill skill : allSkills) {
-                for(String s : illegalCharacter) {
-                    w = w.replace(s, "");
-                }
+
                 if (w.equalsIgnoreCase(skill.getString("skill"))) {
                     if (!vacature.getAll(Skill.class).contains(skill)) {
                         logger.info("found skill " + skill.getString("skill"));
                         vacature.add(skill);
                     }
                 }
+            }
 
+            // Check if the word refers to education
+            for (Education education : allEducations) {
+                if(w.equalsIgnoreCase(education.getString(Education.COL_EDUCATION))) {
+                    if(!vacature.getAll(Education.class).contains(education)) {
+                        logger.info("found education " + education.getString(Education.COL_EDUCATION));
+                        vacature.add(education);
+                    }
+                }
             }
         }
     }
