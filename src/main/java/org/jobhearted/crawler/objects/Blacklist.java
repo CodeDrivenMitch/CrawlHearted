@@ -2,7 +2,6 @@ package org.jobhearted.crawler.objects;
 
 import org.jobhearted.crawler.management.CrawlManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,8 +12,10 @@ public class Blacklist {
     private List<BlacklistEntry> entries;
     private String baseUrl;
     private int crawlerId;
+
     /**
      * Constructs the blacklist from the database
+     *
      * @param crawlManager the Crawl Manager it belongs to
      */
     public Blacklist(CrawlManager crawlManager) {
@@ -24,39 +25,28 @@ public class Blacklist {
     }
 
     /**
-     * Constructor for an empty blacklist
-     * @param baseUrl Base url of the blacklist
-     */
-    public Blacklist(String baseUrl) {
-        this.baseUrl = baseUrl;
-        this.crawlerId = -1;
-        entries = new ArrayList<BlacklistEntry>();
-    }
-
-    /**
      * Checks the url against the blacklist entries to determine if the url is allowed for crawler usage
+     *
      * @param url the Url to check against
      * @return boolean allowed
      */
     public boolean urlAllowed(String url) {
-        boolean allowed = true;
-
-        if(!url.contains(baseUrl)) {
-            allowed = false;
+        if (!url.contains(baseUrl) || url.contains("#")) {
+            return false;
         } else {
-            for(BlacklistEntry entry : entries) {
-                if(url.contains(entry.getString("word"))) {
-                    allowed = false;
+            for (BlacklistEntry entry : entries) {
+                if (url.contains(entry.getString("word"))) {
+                    return false;
                 }
             }
         }
-
-        return allowed;
+        return true;
     }
 
     /**
      * Adds an entry to the blacklist.
-     * @param word the word to add to the blacklist
+     *
+     * @param word    the word to add to the blacklist
      * @param persist Wether the entry should be saved to the database or not
      * @return the entry created by the function
      */
@@ -65,7 +55,7 @@ public class Blacklist {
         entryToAdd.setString("word", word);
         entryToAdd.setInteger("crawler_id", this.crawlerId);
 
-        if(persist && this.crawlerId != -1) {
+        if (persist && this.crawlerId != -1) {
             entryToAdd.save();
         }
 
