@@ -84,11 +84,15 @@ public class Url extends Model {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj.getClass().equals(Url.class)) {
-            Url other = (Url) obj;
-            return other.get(COL_URL).equals(this.getString(COL_URL));
-        } else {
+        if(!obj.getClass().equals(Url.class)) {
             return false;
+        }
+        Url other = (Url) obj;
+
+        if(other.getString(COL_URL).contains("#")) {
+            return false;
+        } else {
+            return other.getString(COL_URL).equals(this.getString(COL_URL));
         }
     }
 }
