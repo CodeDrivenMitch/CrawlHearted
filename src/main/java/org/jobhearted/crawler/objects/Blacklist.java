@@ -12,6 +12,7 @@ public class Blacklist {
     private List<BlacklistEntry> entries;
     private String baseUrl;
     private int crawlerId;
+    private CrawlManager crawlManager;
 
     /**
      * Constructs the blacklist from the database
@@ -19,6 +20,7 @@ public class Blacklist {
      * @param crawlManager the Crawl Manager it belongs to
      */
     public Blacklist(CrawlManager crawlManager) {
+        this.crawlManager = crawlManager;
         this.crawlerId = crawlManager.getInteger("id");
         this.baseUrl = crawlManager.getString("base_url");
         entries = BlacklistEntry.find("crawler_id = " + crawlManager.getString("id"));

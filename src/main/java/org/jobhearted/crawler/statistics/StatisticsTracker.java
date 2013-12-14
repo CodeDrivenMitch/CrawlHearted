@@ -82,7 +82,7 @@ public class StatisticsTracker {
             notifyNewFlagCount(crawlmanager, oldFlag, specificMap.get(oldFlag) );
         }
         if(newFlag != null) {
-            specificMap.put(oldFlag, specificMap.get(newFlag) + 1);
+            specificMap.put(newFlag, specificMap.get(newFlag) + 1);
             notifyNewFlagCount(crawlmanager, newFlag, specificMap.get(newFlag) );
         }
     }

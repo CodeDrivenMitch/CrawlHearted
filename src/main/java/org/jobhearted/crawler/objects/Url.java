@@ -1,6 +1,8 @@
 package org.jobhearted.crawler.objects;
 
 import org.javalite.activejdbc.Model;
+import org.jobhearted.crawler.management.CrawlManager;
+import org.jobhearted.crawler.statistics.StatisticsTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +26,8 @@ public class Url extends Model {
     public static final String COL_LAST_SEEN = "last_visited";
     public static final String COL_CRAWLER_ID = "crawler_id";
 
+    private CrawlManager crawlManager;
+
     // Model validors
     static {
         validatePresenceOf(COL_URL, COL_FLAG, COL_CRAWLER_ID);
@@ -35,7 +39,10 @@ public class Url extends Model {
      * @see Flag
      */
     public Flag getFlag() {
-        return Flag.valueOf(this.getString(COL_FLAG));
+        if(this.getString(COL_FLAG) != null) {
+            return Flag.valueOf(this.getString(COL_FLAG));
+        }
+        return null;
     }
 
     /**
@@ -44,6 +51,7 @@ public class Url extends Model {
      * @param flag The new flag of the url
      */
     public void setFlag(Flag flag) {
+        StatisticsTracker.switchFlag(crawlManager, getFlag(), flag);
         if(flag != null) {
             this.set(COL_FLAG, flag.toString());
             if(flag == Flag.VISITED) {
@@ -53,8 +61,6 @@ public class Url extends Model {
                     this.setTimestamp(COL_FIRST_SEEN, now);
                 }
             }
-        } else {
-            throw new NullPointerException("Flag can not be null!");
         }
     }
 
@@ -90,5 +96,11 @@ public class Url extends Model {
         } else {
             return false;
         }
+    }
+
+    public void setParentCrawlmanager(CrawlManager crawlmanager) {
+        this.setInteger(Url.COL_CRAWLER_ID, crawlmanager.getInteger("id"));
+        this.crawlManager = crawlmanager;
+
     }
 }

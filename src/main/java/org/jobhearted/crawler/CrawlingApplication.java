@@ -1,6 +1,7 @@
 package org.jobhearted.crawler;
 
 import org.jobhearted.crawler.exceptions.UnableToStartManagerException;
+import org.jobhearted.crawler.gui.MainWindow;
 import org.jobhearted.crawler.management.ProcessManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,6 @@ public class CrawlingApplication {
     }
 
     private static void launchGui() {
-
+        MainWindow.createMainWindow();
     }
 }

@@ -83,10 +83,12 @@ public class DocumentProcessor {
             String u = e.attr("abs:href");
             if (blacklist.urlAllowed(u)) {
                 Url url = new Url();
-                url.setFlag(Flag.FOUND);
                 url.setString(Url.COL_URL, u);
-                url.setInteger(Url.COL_CRAWLER_ID, crawlManager.getInteger("id"));
-                crawlManager.addUrlToList(url);
+                if(!crawlManager.getUrlList().contains(url)) {
+                    url.setParentCrawlmanager(crawlManager);
+                    url.setFlag(Flag.FOUND);
+                    crawlManager.addUrlToList(url);
+                }
             }
         }
     }

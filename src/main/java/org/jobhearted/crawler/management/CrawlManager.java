@@ -6,6 +6,7 @@ import org.jobhearted.crawler.objects.Url;
 import org.jobhearted.crawler.objects.UrlList;
 import org.jobhearted.crawler.processing.DocumentProcessor;
 import org.javalite.activejdbc.Model;
+import org.jobhearted.crawler.statistics.StatisticsTracker;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
@@ -35,6 +36,7 @@ public class CrawlManager extends Model implements Runnable {
      * Initializes the crawler by calling the relevant functions
      */
     public void initialize() {
+        StatisticsTracker.registerCrawler(this);
         initializeList();
 
         processor = DocumentProcessor.createProcessor(this);
@@ -50,14 +52,16 @@ public class CrawlManager extends Model implements Runnable {
 
         // Register the urls at the statistics
         for (Url u : list) {
+            u.setParentCrawlmanager(this);
             urlList.add(u);
+            StatisticsTracker.switchFlag(this, null, u.getFlag());
         }
 
         if(list.isEmpty()) {
             Url url = new Url();
+            url.setParentCrawlmanager(this);
             url.setFlag(Flag.FOUND);
             url.setString(Url.COL_URL, this.getString("base_url"));
-            url.setInteger(Url.COL_CRAWLER_ID, this.getInteger("id"));
             this.addUrlToList(url);
         }
     }
@@ -147,11 +151,8 @@ public class CrawlManager extends Model implements Runnable {
     }
 
     public void addUrlToList(Url url) {
-        if(!this.urlList.contains(url)) {
-            url.saveIt();
-            this.urlList.add(url);
-            logger.debug("Url added: " + url.toString() + " - Valid: " + url.isValid());
-        }
+        url.saveIt();
+        this.urlList.add(url);
     }
 
     public CrawlmanagerState getState() {
@@ -159,6 +160,11 @@ public class CrawlManager extends Model implements Runnable {
     }
 
     public void setState(CrawlmanagerState newState) {
+        StatisticsTracker.switchCrawlerState(this, newState);
         this.state = newState;
+    }
+
+    public UrlList getUrlList() {
+        return urlList;
     }
 }
