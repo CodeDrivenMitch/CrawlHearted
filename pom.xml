@@ -26,7 +26,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>org.jobhearted.crawler.crawlhearted.App</mainClass>
+                            <mainClass>org.jobhearted.crawler.App</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -127,6 +127,12 @@
             <artifactId>jsoup</artifactId>
             <version>1.7.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20131018</version>
+        </dependency>
+
     </dependencies>
 
     <reporting>

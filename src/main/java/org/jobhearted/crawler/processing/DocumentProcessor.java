@@ -153,37 +153,21 @@ public class DocumentProcessor {
     }
 
     private void processSkillsAndEducation(Vacature vacature) {
-        String[] words = vacature.getString(Vacature.COL_OMSCHRIJVING).split(" ");
-        for (String w : words) {
-            // Filter illegal characters
-            for (String s : illegalCharacter) {
-                w = w.replace(s, "");
+
+
+        String omschrijving = vacature.getString(Vacature.COL_OMSCHRIJVING);
+
+        for (Skill skill : allSkills) {
+            if(omschrijving.contains(skill.getString("skill"))) {
+                logger.info("found skill " + skill.getString("skill"));
+                vacature.add(skill);
             }
+        }
 
-            // split the backslash
-
-            String[] split = w.split("/");
-            for(String s : split) {
-                // Check if the word is a skill
-                for (Skill skill : allSkills) {
-
-                    if (s.equalsIgnoreCase(skill.getString("skill"))) {
-                        if (!vacature.getAll(Skill.class).contains(skill)) {
-                            logger.info("found skill " + skill.getString("skill"));
-                            vacature.add(skill);
-                        }
-                    }
-                }
-
-                // Check if the word refers to education
-                for (Education education : allEducations) {
-                    if(s.equalsIgnoreCase(education.getString(Education.COL_EDUCATION))) {
-                        if(!vacature.getAll(Education.class).contains(education)) {
-                            logger.info("found education " + education.getString(Education.COL_EDUCATION));
-                            vacature.add(education);
-                        }
-                    }
-                }
+        for(Education education : allEducations) {
+            if(omschrijving.contains(education.getString(Education.COL_EDUCATION))) {
+                logger.info("found education " + education.getString(Education.COL_EDUCATION));
+                vacature.add(education);
             }
         }
     }

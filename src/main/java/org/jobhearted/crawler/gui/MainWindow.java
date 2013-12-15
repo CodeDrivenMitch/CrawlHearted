@@ -4,9 +4,12 @@ import org.jobhearted.crawler.management.CrawlManager;
 import org.jobhearted.crawler.management.CrawlmanagerState;
 import org.jobhearted.crawler.objects.Flag;
 import org.jobhearted.crawler.observers.StatisticObserver;
+import org.jobhearted.crawler.parser.ParseUi;
 import org.jobhearted.crawler.statistics.StatisticsTracker;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +36,8 @@ public class MainWindow implements StatisticObserver {
     private JTextField tfTotalStopped;
     private JButton tfButtonPauseAll;
     private JButton btResumeAll;
-    private JTable tableCrawlerState;
+    private JPanel panelTools;
+    private JButton btParser;
 
     private Map<Flag, JTextField> totalUrlTextfieldMap;
     private static Map<CrawlManager, Map<Flag, Integer>> flagMap = new HashMap<CrawlManager, Map<Flag, Integer>>();
@@ -45,6 +49,34 @@ public class MainWindow implements StatisticObserver {
         initializeCrawlerMap();
         initializeUrlMap();
         flagMap = new HashMap<CrawlManager, Map<Flag, Integer>>();
+        tfButtonPauseAll.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for(Map.Entry<CrawlManager, CrawlmanagerState> entry : stateMap.entrySet()) {
+                    entry.getKey().setState(CrawlmanagerState.PAUSING);
+                }
+
+            }
+        });
+
+        btResumeAll.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for(Map.Entry<CrawlManager, CrawlmanagerState> entry : stateMap.entrySet()) {
+                    entry.getKey().setState(CrawlmanagerState.RUNNING);
+                }
+
+            }
+        });
+
+        btParser.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(e.getSource() == btParser) {
+                    ParseUi.createparseUi();
+                }
+            }
+        });
     }
 
 

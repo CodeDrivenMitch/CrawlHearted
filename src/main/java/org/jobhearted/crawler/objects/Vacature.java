@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * The vacature data class. This is an ActiveJDBC dataobject.
  */
-@Many2Many(other = Skill.class, join = "vacatures_skills", sourceFKName = "skill_id", targetFKName = "vacature_id")
+@Many2Many(other = Skill.class, join = "vacatures_skills", sourceFKName = "vacature_id", targetFKName = "skill_id")
 public class Vacature extends Model {
     private static Logger logger = LoggerFactory.getLogger(Vacature.class);
     private static final Map<ProcessData, String> databaseMap = createDatabaseMap();
