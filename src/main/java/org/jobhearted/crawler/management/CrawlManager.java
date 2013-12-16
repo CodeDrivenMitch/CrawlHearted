@@ -129,7 +129,7 @@ public class CrawlManager extends Model implements Runnable {
             logger.debug("Url was file!", e);
             url.setFlag(Flag.FILE);
         } catch (IOException e) {
-            logger.debug("Url connection timed out.");
+            logger.debug("Url connection timed out.", e);
             url.failedConnection();
         } finally {
             url.saveIt();

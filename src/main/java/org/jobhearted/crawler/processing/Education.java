@@ -1,8 +1,8 @@
 package org.jobhearted.crawler.processing;
 
-import org.jobhearted.crawler.objects.Vacature;
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Many2Many;
+import org.jobhearted.crawler.objects.Vacature;
 
 /**
  * Created with IntelliJ IDEA for JobHearted.
@@ -15,24 +15,42 @@ import org.javalite.activejdbc.annotations.Many2Many;
 public class Education extends Model {
     // Database fields
     public static final String COL_EDUCATION = "education";
-    public static final String COL_LEVEL = "level";
-
 
     // Model validators
     static {
-        validateNumericalityOf(COL_LEVEL);
-        validatePresenceOf(COL_EDUCATION, COL_LEVEL);
+        validatePresenceOf(COL_EDUCATION);
     }
 
+    /**
+     * Gets the value of the education field.
+     *
+     * @return Education string
+     */
+    public String getEducation() {
+        return this.getString(COL_EDUCATION);
+    }
+
+    /**
+     * Sets the education field of the model
+     *
+     * @param education new value of the education field
+     */
+    public void setEducation(String education) {
+        this.setString(COL_EDUCATION, education);
+    }
+
+    /**
+     * Override equals to always compare Educations based on their education field, ignoring case.
+     * Will return false if the parameter is not an Education object
+     *
+     * @param obj Education to compare to
+     * @return equality of the objects
+     */
     @Override
     public boolean equals(Object obj) {
-        if(!obj.getClass().equals(Education.class)) {
+        if (!obj.getClass().equals(Education.class)) {
             return false;
         }
-
-        Education education = (Education) obj;
-
-        return education.getInteger(Education.COL_LEVEL).equals(this.getInteger(Education.COL_LEVEL));
-
+        return this.getEducation().equals(((Education) obj).getEducation());
     }
 }

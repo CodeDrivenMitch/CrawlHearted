@@ -45,7 +45,7 @@ public class ParseUi {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(e.getSource() == btStart) {
-                    Parser parser = new Parser(tfFileInput.getText(), true, true, true);
+                    Parser parser = new Parser(tfFileInput.getText(), cbParsePofile.isSelected(), cbParseSkills.isSelected(), cbParseEducation.isSelected());
                     ExecutorService damn = Executors.newSingleThreadExecutor();
                     damn.execute(parser);
 

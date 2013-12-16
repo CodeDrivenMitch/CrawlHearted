@@ -3,8 +3,6 @@ package org.jobhearted.crawler.objects;
 import org.javalite.activejdbc.Model;
 import org.jobhearted.crawler.management.CrawlManager;
 import org.jobhearted.crawler.statistics.StatisticsTracker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -16,7 +14,6 @@ import java.util.Date;
  * Time: 7:53 PM
  */
 public class Url extends Model {
-    private static Logger logger = LoggerFactory.getLogger(Url.class);
     // Database field names
     public static final String COL_ID = "id";
     public static final String COL_URL = "url";
@@ -103,4 +100,11 @@ public class Url extends Model {
         this.crawlManager = crawlmanager;
 
     }
+
+
+    public int getID() {
+        return this.getInteger(COL_ID);
+    }
+
+
 }

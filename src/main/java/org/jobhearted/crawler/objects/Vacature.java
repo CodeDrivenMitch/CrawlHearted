@@ -1,9 +1,9 @@
 package org.jobhearted.crawler.objects;
 
+import org.javalite.activejdbc.Model;
+import org.jobhearted.crawler.processing.Education;
 import org.jobhearted.crawler.processing.ProcessData;
 import org.jobhearted.crawler.processing.Skill;
-import org.javalite.activejdbc.Model;
-import org.javalite.activejdbc.annotations.Many2Many;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,12 +13,9 @@ import java.util.Map;
 
 /**
  * The vacature data class. This is an ActiveJDBC dataobject.
- */
-@Many2Many(other = Skill.class, join = "vacatures_skills", sourceFKName = "vacature_id", targetFKName = "skill_id")
-public class Vacature extends Model {
-    private static Logger logger = LoggerFactory.getLogger(Vacature.class);
-    private static final Map<ProcessData, String> databaseMap = createDatabaseMap();
+*/
 
+public class Vacature extends Model {
     // Database fields
     public static final String COL_URL_ID = "url_id";
     public static final String COL_HASH = "hash";
@@ -36,8 +33,12 @@ public class Vacature extends Model {
         validateNumericalityOf(COL_URL_ID, COL_VERSION, COL_ACTIVE);
     }
 
+    private static final Map<ProcessData, String> databaseMap = createDatabaseMap();
+    private static Logger logger = LoggerFactory.getLogger(Vacature.class);
+
     /**
      * Initializes the datamap of the vacature model, which happens at startup.
+     *
      * @return the Hashmap
      */
     private static Map<ProcessData, String> createDatabaseMap() {
@@ -55,11 +56,12 @@ public class Vacature extends Model {
     /**
      * Sets the given data key to the given value, using the databaseMap field, which mapped all keys to their respective
      * fields.
+     *
      * @param data  The key to set
      * @param value The value to set
      */
     public void putProperty(ProcessData data, String value) {
-        if(data == ProcessData.REQUIREMENTFORVACATURE) {
+        if (data == ProcessData.REQUIREMENTFORVACATURE) {
             logger.warn("You tried to set a requirement on a vacature. This should NEVER happen!");
             return;
         }
@@ -84,8 +86,8 @@ public class Vacature extends Model {
     }
 
     /**
-     *  Saves the Vacature safely to the database. Checking for doubles in the database by both url id and hash,
-     *  so there's no double data in the database.
+     * Saves the Vacature safely to the database. Checking for doubles in the database by both url id and hash,
+     * so there's no double data in the database.
      */
     public boolean saveSafely() {
         // Search if the url of the vacature already has one in the database
@@ -102,7 +104,6 @@ public class Vacature extends Model {
                 // and update the version of the new one
                 this.setInteger(COL_VERSION, vacature.getInteger(COL_VERSION) + 1);
                 this.save();
-                logger.info("new version!");
             }
         } else {
             // See if a vacature with the same hash is already in the database
@@ -112,20 +113,70 @@ public class Vacature extends Model {
                 this.setInteger(COL_VERSION, 1);
                 this.setInteger(COL_ACTIVE, 1);
                 this.save();
-                logger.info("saved");
                 return true;
-            } else {
-                logger.info("was already in db!");
             }
         }
 
         return false;
     }
 
+    /**
+     * Removes all the skills associated with the vacature. Mostly needed when a new version is found, or the
+     * vacature has been deleted and should not be included in the matcher, which uses this relation
+     */
     public void removeAllSkills() {
-        for(Skill s : this.getAll(Skill.class)) {
+        for (Skill s : this.getAll(Skill.class)) {
             this.remove(s);
         }
     }
 
+    /**
+     * Adds the skill to the vacature, which is later used in the matcher.
+     * @param skill The skill to add
+     */
+    public void addSkill(Skill skill) {
+        this.add(skill);
+        logger.debug("Added skill {}", skill.getSkill());
+    }
+
+    /**
+     * Add the Education to the vacature, which is later user in the matcher.
+     * @param education The education to add
+     */
+    public void addEducation(Education education) {
+        this.add(education);
+        logger.debug("Added Education {}", education.getEducation());
+    }
+
+    /**
+     * Getter for the omschrijving field of the model
+     * @return de omschrijving
+     */
+    public String getOmschrijving() {
+        return this.getString(COL_OMSCHRIJVING);
+    }
+
+    /**
+     * Setter for the omschrijving field of the model
+     * @param omschrijving The value to set to
+     */
+    public void setOmschrijving(String omschrijving) {
+        this.setString(COL_OMSCHRIJVING, omschrijving);
+    }
+
+    public void setUrlId(int newId) {
+        this.setInteger(COL_URL_ID, newId);
+    }
+
+    public int getUrlId() {
+        return this.getInteger(COL_URL_ID);
+    }
+
+    public void setActive(boolean active) {
+        if(active) {
+            this.setInteger(COL_ACTIVE, 1);
+        } else {
+            this.setInteger(COL_ACTIVE, 0);
+        }
+    }
 }

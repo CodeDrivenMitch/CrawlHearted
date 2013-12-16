@@ -38,18 +38,17 @@ public class ProcessManager {
         crawlExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(crawlManagerList.size());
 
         for (CrawlManager crawlManager : crawlManagerList) {
-            logger.info("Initializing CrawlManager with id " + crawlManager.getString("id") + " for base url " + crawlManager.getString("base_url"));
+            logger.info("Initializing CrawlManager with id {}  for base url {}", crawlManager.getString("base_url"), crawlManager.getString("id"));
             crawlManager.initialize();
             crawlExecutor.submit(crawlManager);
-            logger.debug("CrawlManager " + crawlManager.getString("id") + " succefully started!");
-            crawlManager.setState(CrawlmanagerState.RUNNING);
+            logger.debug("CrawlManager {} succesfully started!", crawlManager.getString("id"));
+            crawlManager.setState(CrawlmanagerState.PAUSED);
         }
 
     }
 
     /**
      * Creates a Process Manager
-     * TODO: Might change this to singleton
      * @return the new process manager
      * @throws org.jobhearted.crawler.exceptions.UnableToStartManagerException
      *          Error during process manager startup

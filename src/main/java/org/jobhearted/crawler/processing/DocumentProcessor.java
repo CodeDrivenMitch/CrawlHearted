@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,17 +25,21 @@ import java.util.Map;
 
 
 public class DocumentProcessor {
+
     private static Logger logger = LoggerFactory.getLogger(DocumentProcessor.class);
+    // Static lists
     private static List<Skill> allSkills;
     private static List<Education> allEducations;
     Map<ProcessData, String> settingsMap;
-    String[] illegalCharacter = {
-            "(", ")", ";", ".", ",", ":", "{", "}", "[", "]", "*", "&", "^", "%", "$", "@", "!", "?"
-    };
     private CrawlManager crawlManager;
     private Blacklist blacklist;
     private Document documentToProcess;
     private Url urlOfDocument;
+
+    // Illegal character array for use in regex
+    private static final String[] illegalCharacter = {
+            "(", ")", ";", ".", ",", ":", "{", "}", "[", "]", "*", "&", "^", "%", "$", "@", "!", "?", "\"", "\\", "/"
+    };
 
     private DocumentProcessor(CrawlManager crawlManager) {
         this.crawlManager = crawlManager;
@@ -50,16 +55,16 @@ public class DocumentProcessor {
             settingsMap.put(key, value);
         }
 
-        logger.info("Loaded " + settingsMap.size() + " Setting entries!");
+        logger.info("Loaded {} Setting entries!", settingsMap.size());
 
         if (allSkills == null) {
             allSkills = Skill.findAll();
-            logger.info("Loaded " + allSkills.size() + " Skill entries!");
+            logger.info("Loaded {} Skill entries!", allSkills.size());
         }
 
         if (allEducations == null) {
             allEducations = Education.findAll();
-            logger.info("Loaded " + allEducations.size() + " Education entries!");
+            logger.info("Loaded {} Education entries!", allEducations.size());
         }
 
     }
@@ -84,7 +89,7 @@ public class DocumentProcessor {
             if (blacklist.urlAllowed(u)) {
                 Url url = new Url();
                 url.setString(Url.COL_URL, u);
-                if(!crawlManager.getUrlList().contains(url)) {
+                if (!crawlManager.getUrlList().contains(url)) {
                     url.setParentCrawlmanager(crawlManager);
                     url.setFlag(Flag.FOUND);
                     crawlManager.addUrlToList(url);
@@ -96,9 +101,9 @@ public class DocumentProcessor {
     private void processContent() {
         if (docHasRequirements(ProcessData.REQUIREMENTFORVACATURE)) {
             Vacature vacature = processVacature();
-            logger.info("validvacature");
             if (vacature.saveSafely()) {
-                processSkillsAndEducation(vacature);
+                processSkills(vacature);
+                processEducation(vacature);
             }
         } else {
             removeAnyVacaturesFromUrl();
@@ -116,7 +121,7 @@ public class DocumentProcessor {
                 }
             }
         } else {
-            logger.warn("Could not determine " + data.toString() + " for url " + this.urlOfDocument.getString(Url.COL_URL));
+            logger.warn("Could not determine {} for url {}", data.toString(), this.urlOfDocument.getString(Url.COL_URL));
             return false;
         }
 
@@ -127,7 +132,7 @@ public class DocumentProcessor {
         List<Vacature> list = Vacature.where(Vacature.COL_URL_ID + " = ?", urlOfDocument.getInteger(Url.COL_ID));
 
         for (Vacature v : list) {
-            v.setInteger(Vacature.COL_ACTIVE, 0);
+            v.setActive(false);
             v.removeAllSkills();
             v.save();
         }
@@ -138,7 +143,7 @@ public class DocumentProcessor {
 
         for (Map.Entry<ProcessData, String> entry : this.settingsMap.entrySet()) {
             if (entry.getKey() != ProcessData.REQUIREMENTFORVACATURE) {
-                if(!entry.getValue().equals("NULL")) {
+                if (!entry.getValue().equals("NULL")) {
                     vacature.putProperty(entry.getKey(), this.documentToProcess.select(entry.getValue()).text());
                 } else {
                     vacature.putProperty(entry.getKey(), "");
@@ -146,28 +151,50 @@ public class DocumentProcessor {
             }
         }
 
-        vacature.setInteger(Vacature.COL_URL_ID, this.urlOfDocument.getInteger(Url.COL_ID));
+        vacature.setUrlId(urlOfDocument.getID());
         vacature.generateHash();
 
         return vacature;
     }
 
-    private void processSkillsAndEducation(Vacature vacature) {
+    private void processSkills(Vacature vacature) {
 
-
-        String omschrijving = vacature.getString(Vacature.COL_OMSCHRIJVING);
-
-        for (Skill skill : allSkills) {
-            if(omschrijving.contains(skill.getString("skill"))) {
-                logger.info("found skill " + skill.getString("skill"));
-                vacature.add(skill);
-            }
+        String omschrijving = vacature.getOmschrijving().toLowerCase();
+        for (String i : illegalCharacter) {
+            omschrijving = omschrijving.replace(i, " ");
         }
 
-        for(Education education : allEducations) {
-            if(omschrijving.contains(education.getString(Education.COL_EDUCATION))) {
-                logger.info("found education " + education.getString(Education.COL_EDUCATION));
-                vacature.add(education);
+        List<Skill> foundSkills = new LinkedList<Skill>();
+        String regex;
+        for (Skill skill : allSkills) {
+            regex = ".*\\s" + skill.getSkill().toLowerCase() + "\\s.*";
+            if (omschrijving.matches(regex) && !foundSkills.contains(skill)) {
+                vacature.addSkill(skill);
+                foundSkills.add(skill);
+            }
+        }
+    }
+
+    /**
+     * Processes the educations in the omschrijving field of the vacature. When it finds one, it adds it to the
+     * Many2Many relationship.
+     * @param vacature Vacature to process
+     */
+    private void processEducation(Vacature vacature) {
+        // Get the omschrijving and remove illegal characters from it
+        String omschrijving = vacature.getOmschrijving().toLowerCase();
+        for (String i : illegalCharacter) {
+            omschrijving = omschrijving.replace(i, " ");
+        }
+
+        List<Education> foundEducations = new LinkedList<Education>();
+        // Loop over all known skills, execute the regex it needs to fulfill. If it matches, it is added to the model
+        for (Education education : allEducations) {
+            String regex = ".*\\s" + education.getString("education").toLowerCase() + "\\s.*";
+
+            if (omschrijving.matches(regex) && !foundEducations.contains(education)) {
+                vacature.addEducation(education);
+                foundEducations.add(education);
             }
         }
     }

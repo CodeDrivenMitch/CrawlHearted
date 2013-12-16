@@ -20,13 +20,15 @@ public class CrawlingApplication {
         logger.info("Starting up the CrawlHearted application");
 
         try {
-            ProcessManager processManager = ProcessManager.createProcessManager();
+
 
             // launching org.jobhearted.crawler.gui if necessary
             List<String> arguments = Arrays.asList(args);
             if(!arguments.contains("-nogui")) {
                 launchGui();
             }
+
+            ProcessManager.createProcessManager();
         } catch (UnableToStartManagerException e) {
             logger.warn("failed to initialize!", e);
         }
