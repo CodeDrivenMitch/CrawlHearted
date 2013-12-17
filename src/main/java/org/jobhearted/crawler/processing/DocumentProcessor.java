@@ -43,7 +43,7 @@ public class DocumentProcessor {
 
     private DocumentProcessor(CrawlManager crawlManager) {
         this.crawlManager = crawlManager;
-        this.blacklist = new Blacklist(crawlManager);
+        this.blacklist = crawlManager.getBlacklist();
 
         settingsMap = new HashMap<ProcessData, String>();
 

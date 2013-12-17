@@ -1,11 +1,12 @@
 package org.jobhearted.crawler.management;
 
+import org.javalite.activejdbc.Model;
 import org.jobhearted.crawler.database.Database;
+import org.jobhearted.crawler.objects.Blacklist;
 import org.jobhearted.crawler.objects.Flag;
 import org.jobhearted.crawler.objects.Url;
 import org.jobhearted.crawler.objects.UrlList;
 import org.jobhearted.crawler.processing.DocumentProcessor;
-import org.javalite.activejdbc.Model;
 import org.jobhearted.crawler.statistics.StatisticsTracker;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
@@ -31,12 +32,14 @@ public class CrawlManager extends Model implements Runnable {
     private static Flag[] flagPriority = {Flag.FOUND, Flag.RETRY, Flag.RECRAWL};
     // Fields used for processing
     private DocumentProcessor processor;
+    private Blacklist blacklist;
 
     /**
      * Initializes the crawler by calling the relevant functions
      */
     public void initialize() {
         StatisticsTracker.registerCrawler(this);
+        blacklist = new Blacklist(this);
         initializeList();
 
         processor = DocumentProcessor.createProcessor(this);
@@ -111,11 +114,15 @@ public class CrawlManager extends Model implements Runnable {
 
         for(Flag f : flagPriority) {
             found = this.urlList.getFirstWithFlag(f);
-            if( found.getString(Url.COL_URL) != null) {
-                return found;
+            if( found.getUrl() != null) {
+                if(blacklist.urlAllowed(found.getUrl())) {
+                    return found;
+                } else {
+                    urlList.remove(found);
+                    found.delete();
+                }
             }
         }
-
         return null;
     }
 
@@ -166,5 +173,9 @@ public class CrawlManager extends Model implements Runnable {
 
     public UrlList getUrlList() {
         return urlList;
+    }
+
+    public Blacklist getBlacklist() {
+        return this.blacklist;
     }
 }

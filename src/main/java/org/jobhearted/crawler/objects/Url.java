@@ -106,5 +106,9 @@ public class Url extends Model {
         return this.getInteger(COL_ID);
     }
 
+    public String getUrl() {
+        return this.getString(COL_URL);
+    }
+
 
 }
