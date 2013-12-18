@@ -24,15 +24,20 @@ import static java.lang.Thread.sleep;
  * Crawl Manager handles crawling of a certain domain. Uses the blacklist class to check the urls for validness.
  */
 public class CrawlManager extends Model implements Runnable {
+    //Database fields
+    private static final String COL_ID = "id";
+    private static final String COL_BASE_URL = "base_url";
     private static Logger logger = LoggerFactory.getLogger(CrawlManager.class);
+    private static Flag[] flagPriority = {Flag.FOUND, Flag.RETRY, Flag.RECRAWL};
     //State fields
     private CrawlmanagerState state;
     //Fields used for crawling
     private UrlList urlList;
-    private static Flag[] flagPriority = {Flag.FOUND, Flag.RETRY, Flag.RECRAWL};
     // Fields used for processing
     private DocumentProcessor processor;
     private Blacklist blacklist;
+    // Fields used for recrawl checking
+    private Date lastRecrawlChecked;
 
     /**
      * Initializes the crawler by calling the relevant functions
@@ -41,8 +46,24 @@ public class CrawlManager extends Model implements Runnable {
         StatisticsTracker.registerCrawler(this);
         blacklist = new Blacklist(this);
         initializeList();
-
+        checkForRecrawl();
         processor = DocumentProcessor.createProcessor(this);
+    }
+
+    private void checkForRecrawl() {
+        long recrawlCheckTime = 10 * 60 * 1000;
+        long recrawlTime = 24*60*60*1000;
+
+        Date now = new Date();
+        if (lastRecrawlChecked == null || now.getTime() - lastRecrawlChecked.getTime() > recrawlCheckTime) {
+            for (Url url : urlList.getAllWithFlag(Flag.VISITED)) {
+                if(url.getLastVisited() != null && now.getTime() - url.getLastVisited().getTime() > recrawlTime) {
+                    url.setFlag(Flag.RECRAWL);
+                }
+            }
+        }
+
+        lastRecrawlChecked = now;
     }
 
     /**
@@ -60,7 +81,7 @@ public class CrawlManager extends Model implements Runnable {
             StatisticsTracker.switchFlag(this, null, u.getFlag());
         }
 
-        if(list.isEmpty()) {
+        if (list.isEmpty()) {
             Url url = new Url();
             url.setParentCrawlmanager(this);
             url.setFlag(Flag.FOUND);
@@ -101,7 +122,7 @@ public class CrawlManager extends Model implements Runnable {
 
         Url urlToCrawl = getUrlToCrawl();
 
-        if(urlToCrawl != null) {
+        if (urlToCrawl != null) {
             crawlUrl(urlToCrawl);
         }
 
@@ -112,14 +133,15 @@ public class CrawlManager extends Model implements Runnable {
     private Url getUrlToCrawl() {
         Url found;
 
-        for(Flag f : flagPriority) {
-            found = this.urlList.getFirstWithFlag(f);
-            if( found.getUrl() != null) {
-                if(blacklist.urlAllowed(found.getUrl())) {
+        for (Flag flag : flagPriority) {
+            found = urlList.getFirstWithFlag(flag);
+            while (found != null) {
+                if (blacklist.urlAllowed(found.getUrl())) {
                     return found;
                 } else {
                     urlList.remove(found);
                     found.delete();
+                    found = urlList.getFirstWithFlag(flag);
                 }
             }
         }
@@ -148,7 +170,7 @@ public class CrawlManager extends Model implements Runnable {
         long timeToSleep = sleepPolicy - (endTime.getTime() - startTime.getTime());
 
         logger.debug("Time taken was " + (sleepPolicy - timeToSleep) + " miliseconds!");
-        if(timeToSleep > 0) {
+        if (timeToSleep > 0) {
             try {
                 sleep(timeToSleep);
             } catch (InterruptedException e) {
@@ -177,5 +199,22 @@ public class CrawlManager extends Model implements Runnable {
 
     public Blacklist getBlacklist() {
         return this.blacklist;
+    }
+
+    public int getID() {
+        return this.getInteger(COL_ID);
+    }
+
+    public String getBaseUrl() {
+        return this.getString(COL_BASE_URL);
+    }
+
+    @Override
+    public String toString() {
+        if(getState() != null) {
+            return getBaseUrl() + "  -  " + getState().toString();
+        } else {
+            return getBaseUrl() + " - LOADING";
+        }
     }
 }

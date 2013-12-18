@@ -22,6 +22,11 @@ import java.util.List;
  * Time: 1:14 PM
  */
 public class Parser implements Runnable {
+    // Illegal character array for use in regex
+    private static final String[] illegalCharacter = new String[]{
+            "(", ")", ";", ",", ":", "{", "}", "[", "]", "*", "&", "^",
+            "%", "$", "@", "!", "?", "\"", "\\", "/", "<", ">", "-", "•"
+    };
     private static Logger logger = LoggerFactory.getLogger(Parser.class);
     ProgressWindow window;
     private String filetoParse;
@@ -30,6 +35,7 @@ public class Parser implements Runnable {
     private boolean parseSkills;
     private List<Education> educationList;
     private List<Skill> skillList;
+
 
     public Parser(String fileToParse, boolean parseProfile, boolean parseSkills, boolean parseEducation) {
         this.filetoParse = fileToParse;
@@ -98,19 +104,26 @@ public class Parser implements Runnable {
             for (int i = 0; i < skills.length(); i++) {
                 currentSkill = skills.getString(i);
                 if (!currentSkill.isEmpty()) {
+                    boolean allowed = true;
 
-                    Skill skill = new Skill();
-                    skill.setString("skill", skills.getString(i));
-                    if (!skillList.contains(skill)) {
-                        logger.info("new Skill " + skills.getString(i));
-
-                        skill.saveIt();
-                        skillList.add(skill);
+                    for (String s : illegalCharacter) {
+                        if (currentSkill.contains(s)) {
+                            allowed = false;
+                        }
                     }
-                    if (parseProfile) {
-                        profile.addSkill(skill);
-                    }
+                    if (allowed) {
+                        Skill skill = new Skill();
+                        skill.setString("skill", skills.getString(i));
+                        if (!skillList.contains(skill)) {
+                            logger.info("new Skill " + skills.getString(i));
 
+                            skill.saveIt();
+                            skillList.add(skill);
+                        }
+                        if (parseProfile) {
+                            profile.addSkill(skill);
+                        }
+                    }
                 }
             }
         } catch (JSONException e) {
@@ -134,7 +147,7 @@ public class Parser implements Runnable {
             }
 
         } catch (JSONException e) {
-            logger.trace("Could not read Education of JSON" , e);
+            logger.trace("Could not read Education of JSON", e);
         }
     }
 

@@ -19,6 +19,7 @@ import java.util.Map;
  * Date: 12/12/13
  * Time: 9:29 PM
  */
+@SuppressWarnings("BoundFieldAssignment")
 public class MainWindow implements StatisticObserver {
     private JTabbedPane panelCrawlers;
     private JPanel mainPanel;
@@ -38,11 +39,16 @@ public class MainWindow implements StatisticObserver {
     private JButton btResumeAll;
     private JPanel panelTools;
     private JButton btParser;
+    private JPanel paneCrawlers;
+    private JScrollPane listScrollPane;
+    private JList<CrawlManager> listCrawlers;
+    private JButton btOpenSpecificCrawler;
 
     private Map<Flag, JTextField> totalUrlTextfieldMap;
     private static Map<CrawlManager, Map<Flag, Integer>> flagMap = new HashMap<CrawlManager, Map<Flag, Integer>>();
     private Map<CrawlmanagerState, JTextField> totalCrawlerTextfieldMap;
     private Map<CrawlManager, CrawlmanagerState> stateMap;
+    private DefaultListModel<CrawlManager> listModel;
 
     private MainWindow() {
         StatisticsTracker.registerObserver(this);
@@ -77,8 +83,26 @@ public class MainWindow implements StatisticObserver {
                 }
             }
         });
+
+        btOpenSpecificCrawler.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(e.getSource() == btOpenSpecificCrawler) {
+                    openSelectedCrawler();
+                }
+            }
+        });
+
+        listModel = new DefaultListModel<CrawlManager>();
+        listCrawlers.setModel(listModel);
+        listCrawlers.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
     }
 
+    private void openSelectedCrawler() {
+        int selected = listCrawlers.getSelectedIndex();
+        System.out.println("Clicked crawler " + listModel.getElementAt(selected).toString());
+    }
 
     private void initializeUrlMap() {
         totalUrlTextfieldMap = new HashMap<Flag, JTextField>();
@@ -143,6 +167,11 @@ public class MainWindow implements StatisticObserver {
         }
 
         stateMap.put(crawlManager, newState);
+
+        if(!listModel.contains(crawlManager)) {
+            listModel.addElement(crawlManager);
+        }
+
 
         for(Map.Entry<CrawlmanagerState, JTextField> entry : totalCrawlerTextfieldMap.entrySet()) {
             int count = 0;

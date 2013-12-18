@@ -15,10 +15,22 @@ public class UrlList extends ArrayList<Url> {
      */
     public Url getFirstWithFlag(Flag flag) {
         for (Url url : this) {
-            if (url.getFlag() == flag) {
+            if (url.getFlag().equals(flag)) {
                 return url;
             }
         }
         return null;
+    }
+
+    public UrlList getAllWithFlag(Flag flag) {
+        UrlList toReturn = new UrlList();
+
+        for(Url url : this) {
+            if(url.getFlag().equals(flag)) {
+                toReturn.add(url);
+            }
+        }
+
+        return toReturn;
     }
 }

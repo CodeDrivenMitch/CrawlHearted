@@ -1,6 +1,8 @@
 package org.jobhearted.crawler.objects;
 
 import org.jobhearted.crawler.management.CrawlManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -9,6 +11,7 @@ import java.util.List;
  * urlAllowed() when you want to check if the url is allowed.
  */
 public class Blacklist {
+    private static Logger logger = LoggerFactory.getLogger(Blacklist.class);
     private List<BlacklistEntry> entries;
     private String baseUrl;
     private int crawlerId;
@@ -19,9 +22,10 @@ public class Blacklist {
      * @param crawlManager the Crawl Manager it belongs to
      */
     public Blacklist(CrawlManager crawlManager) {
-        this.crawlerId = crawlManager.getInteger("id");
-        this.baseUrl = crawlManager.getString("base_url");
-        entries = BlacklistEntry.find("crawler_id = " + crawlManager.getString("id"));
+        this.crawlerId = crawlManager.getID();
+        this.baseUrl = crawlManager.getBaseUrl();
+        this.entries = BlacklistEntry.loadAllEntriesForCrawlerId(crawlerId);
+        logger.info("Loaded {} Blacklist entries for crawler {}", entries.size(), crawlManager.getId());
     }
 
     /**
@@ -32,14 +36,17 @@ public class Blacklist {
      */
     public boolean urlAllowed(String url) {
         if (!url.contains(baseUrl) || url.contains("#")) {
+            logger.debug("Found {} to be NOT allowed!", url);
             return false;
         } else {
             for (BlacklistEntry entry : entries) {
                 if (url.contains(entry.getString("word"))) {
+                    logger.debug("Found {} to be NOT allowed!", url);
                     return false;
                 }
             }
         }
+        logger.debug("Found {} to be allowed!", url);
         return true;
     }
 
@@ -47,15 +54,15 @@ public class Blacklist {
      * Adds an entry to the blacklist.
      *
      * @param word    the word to add to the blacklist
-     * @param persist Wether the entry should be saved to the database or not
+     * @param persist Whether the entry should be saved to the database or not
      * @return the entry created by the function
      */
     public BlacklistEntry addEntry(String word, Boolean persist) {
         BlacklistEntry entryToAdd = new BlacklistEntry();
-        entryToAdd.setString("word", word);
-        entryToAdd.setInteger("crawler_id", this.crawlerId);
+        entryToAdd.setWord(word);
+        entryToAdd.setCrawlerId(crawlerId);
 
-        if (persist && this.crawlerId != -1) {
+        if (persist) {
             entryToAdd.save();
         }
 

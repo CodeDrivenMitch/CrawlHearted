@@ -110,5 +110,8 @@ public class Url extends Model {
         return this.getString(COL_URL);
     }
 
+    public Timestamp getLastVisited() {
+        return this.getTimestamp(COL_LAST_SEEN);
+    }
 
 }
