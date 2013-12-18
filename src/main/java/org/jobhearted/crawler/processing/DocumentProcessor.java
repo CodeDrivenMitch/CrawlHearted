@@ -1,5 +1,6 @@
 package org.jobhearted.crawler.processing;
 
+import org.javalite.activejdbc.Model;
 import org.jobhearted.crawler.management.CrawlManager;
 import org.jobhearted.crawler.objects.Blacklist;
 import org.jobhearted.crawler.objects.Flag;
@@ -11,6 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +32,7 @@ public class DocumentProcessor {
     // Static lists
     private static List<Skill> allSkills;
     private static List<Education> allEducations;
+    private static List<Location> allLocations;
     Map<ProcessData, String> settingsMap;
     private CrawlManager crawlManager;
     private Blacklist blacklist;
@@ -67,6 +70,15 @@ public class DocumentProcessor {
             logger.info("Loaded {} Education entries!", allEducations.size());
         }
 
+        if(allLocations == null) {
+            allLocations = new LinkedList<Location>();
+            for(Model l : Location.findAll().load())
+            {
+                allLocations.add((Location) l);
+            }
+            logger.info("Loaded {} Location entries!", allLocations.size());
+        }
+
     }
 
     public static DocumentProcessor createProcessor(CrawlManager crawlManager) {
@@ -102,6 +114,7 @@ public class DocumentProcessor {
         if (docHasRequirements(ProcessData.REQUIREMENTFORVACATURE)) {
             Vacature vacature = processVacature();
             if (vacature.saveSafely()) {
+                processLocation(vacature);
                 processSkills(vacature);
                 processEducation(vacature);
             }
@@ -195,6 +208,29 @@ public class DocumentProcessor {
             if (omschrijving.matches(regex) && !foundEducations.contains(education)) {
                 vacature.addEducation(education);
                 foundEducations.add(education);
+            }
+        }
+    }
+
+    private void processLocation(Vacature vacature) {
+        if(vacature.getPlaats() != null && !vacature.getPlaats().isEmpty()) {
+            Location location = new Location();
+            location.setName(vacature.getPlaats());
+
+            int index = allLocations.indexOf(location);
+
+            if(index == -1) {
+                try {
+                    location.getCoords();
+                    location.saveIt();
+                    location.add(vacature);
+                    allLocations.add(location);
+                } catch (IOException e) {
+                    logger.info("Could not get location!", e);
+                }
+            } else {
+                location = allLocations.get(index);
+                location.add(vacature);
             }
         }
     }

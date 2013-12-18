@@ -1,7 +1,9 @@
 package org.jobhearted.crawler.objects;
 
 import org.javalite.activejdbc.Model;
+import org.javalite.activejdbc.annotations.BelongsTo;
 import org.jobhearted.crawler.processing.Education;
+import org.jobhearted.crawler.processing.Location;
 import org.jobhearted.crawler.processing.ProcessData;
 import org.jobhearted.crawler.processing.Skill;
 import org.slf4j.Logger;
@@ -14,7 +16,7 @@ import java.util.Map;
 /**
  * The vacature data class. This is an ActiveJDBC dataobject.
 */
-
+@BelongsTo(parent = Location.class, foreignKeyName = "location_id")
 public class Vacature extends Model {
     // Database fields
     public static final String COL_URL_ID = "url_id";
@@ -179,4 +181,9 @@ public class Vacature extends Model {
             this.setInteger(COL_ACTIVE, 0);
         }
     }
+
+    public String getPlaats() {
+        return this.getString(COL_PLAATS);
+    }
+
 }
