@@ -53,4 +53,13 @@ public class Education extends Model {
         }
         return this.getEducation().equals(((Education) obj).getEducation());
     }
+
+    /**
+     * Overriding hashCode to always return the same information as the equals function
+     * @return Hashcode of the Eduction field
+     */
+    @Override
+    public int hashCode() {
+        return this.getEducation().hashCode();
+    }
 }

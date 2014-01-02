@@ -15,14 +15,14 @@ public class Location extends Model {
 
     // Database fields
     private static final String COL_NAME = "name";
-    private static final String COL_LONGTITUDE = "longtitude";
+    private static final String COL_LONGITUDE = "longitude";
     private static final String COL_LATITUDE = "latitude";
     // Url for Geo API with $ as wildcard, can use String.replace("$", value) to get the right url
     private static final String URL_API = "http://maps.googleapis.com/maps/api/geocode/json?address=$&sensor=false";
 
     // Model validators
     static {
-        validateNumericalityOf(COL_LATITUDE, COL_LONGTITUDE);
+        validateNumericalityOf(COL_LATITUDE, COL_LONGITUDE);
         validatePresenceOf(COL_NAME);
     }
 
@@ -47,7 +47,7 @@ public class Location extends Model {
      * @param longitude longitude to set to
      */
     public void setLongitude(Double longitude) {
-        this.setDouble(COL_LONGTITUDE, longitude);
+        this.setDouble(COL_LONGITUDE, longitude);
     }
 
     /**
@@ -88,5 +88,10 @@ public class Location extends Model {
             return ((Location) obj).getName().equalsIgnoreCase(this.getName());
         }
 
+    }
+
+    @Override
+    public int hashCode() {
+        return getName().hashCode();
     }
 }

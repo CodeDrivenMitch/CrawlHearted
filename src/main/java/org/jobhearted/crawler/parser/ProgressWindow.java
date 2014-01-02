@@ -12,7 +12,6 @@ public class ProgressWindow {
     private JProgressBar progressBar;
     private JPanel panelProgress;
     private int maxProgress;
-    private int currentProgress;
     private JFrame frame;
 
     private ProgressWindow(int maxProgress) {
@@ -23,9 +22,8 @@ public class ProgressWindow {
 
     public void setNewProgressValue(int value) {
         this.progressBar.setValue(value);
-        this.currentProgress = value;
 
-        if(currentProgress == maxProgress -1) {
+        if(value == maxProgress -1) {
             frame.setVisible(false);
         }
     }
@@ -37,7 +35,7 @@ public class ProgressWindow {
 
     public static ProgressWindow createProgressWindow(int maxProgress) {
         ProgressWindow window = new ProgressWindow(maxProgress);
-       JFrame frame = new JFrame("Bezig...");
+        JFrame frame = new JFrame("Bezig...");
         frame.setContentPane(window.panelProgress);
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.pack();

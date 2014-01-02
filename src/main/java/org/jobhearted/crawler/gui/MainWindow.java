@@ -22,6 +22,7 @@ import java.util.Map;
  */
 
 public class MainWindow implements StatisticObserver {
+    public static final String WAITING_FOR_DATA = "Waiting for data..";
     // accessors for the GUI components
     // Panels (Not all are referenced to in the code but it is needed for the UI to work.
     private JTabbedPane panelCrawlers;
@@ -171,7 +172,7 @@ public class MainWindow implements StatisticObserver {
         totalUrlTextfieldMap.put(Flag.RETRY, tfUrlTotalRetry);
 
         for (Map.Entry<Flag, JTextField> entry : totalUrlTextfieldMap.entrySet()) {
-            entry.getValue().setText("Waiting for data..");
+            entry.getValue().setText(WAITING_FOR_DATA);
         }
     }
 
@@ -187,7 +188,7 @@ public class MainWindow implements StatisticObserver {
         totalCrawlerTextfieldMap.put(CrawlmanagerState.STOPPED, tfTotalStopped);
 
         for (Map.Entry<CrawlmanagerState, JTextField> entry : totalCrawlerTextfieldMap.entrySet()) {
-            if (entry.getValue() != null) entry.getValue().setText("Waiting for data..");
+            if (entry.getValue() != null) entry.getValue().setText(WAITING_FOR_DATA);
         }
     }
 

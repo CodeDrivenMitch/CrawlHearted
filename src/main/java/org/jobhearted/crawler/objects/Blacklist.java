@@ -36,17 +36,14 @@ public class Blacklist {
      */
     public boolean urlAllowed(String url) {
         if (!url.contains(baseUrl) || url.contains("#")) {
-            logger.debug("Found {} to be NOT allowed!", url);
             return false;
         } else {
             for (BlacklistEntry entry : entries) {
                 if (url.contains(entry.getString("word"))) {
-                    logger.debug("Found {} to be NOT allowed!", url);
                     return false;
                 }
             }
         }
-        logger.debug("Found {} to be allowed!", url);
         return true;
     }
 

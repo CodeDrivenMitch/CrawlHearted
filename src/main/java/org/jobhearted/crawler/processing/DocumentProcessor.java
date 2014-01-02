@@ -27,6 +27,13 @@ import java.util.Map;
 
 public class DocumentProcessor {
 
+    // Illegal character array for use in regex
+    private static final String[] illegalCharacters = {
+            "(", ")", ";", ".", ",", ":", "{", "}", "[", "]", "*",
+            "&", "^", "%", "$", "@", "!", "?", "\"", "\\", "/", "\'"
+    };
+    public static final String REGEX_WHITESPACE_BEFORE = ".*\\s";
+    public static final String REGEX_WHITESPACE_AFTER = "\\s.*";
     private static Logger logger = LoggerFactory.getLogger(DocumentProcessor.class);
     // Static lists
     private static List<Skill> allSkills;
@@ -37,12 +44,6 @@ public class DocumentProcessor {
     private Blacklist blacklist;
     private Document documentToProcess;
     private Url urlOfDocument;
-
-    // Illegal character array for use in regex
-    private static final String[] illegalCharacters = {
-            "(", ")", ";", ".", ",", ":", "{", "}", "[", "]", "*",
-            "&", "^", "%", "$", "@", "!", "?", "\"", "\\", "/", "\'"
-    };
 
     private DocumentProcessor(CrawlManager crawlManager) {
         this.crawlManager = crawlManager;
@@ -70,10 +71,9 @@ public class DocumentProcessor {
             logger.info("Loaded {} Education entries!", allEducations.size());
         }
 
-        if(allLocations == null) {
+        if (allLocations == null) {
             allLocations = new LinkedList<Location>();
-            for(Model l : Location.findAll().load())
-            {
+            for (Model l : Location.findAll().load()) {
                 allLocations.add((Location) l);
             }
             logger.info("Loaded {} Location entries!", allLocations.size());
@@ -126,7 +126,7 @@ public class DocumentProcessor {
     private boolean docHasRequirements(ProcessData data) {
         String requirements = settingsMap.get(data);
         if (requirements != null && !requirements.isEmpty()) {
-            String req[] = requirements.split(";");
+            String[] req = requirements.split(";");
 
             for (String r : req) {
                 if (documentToProcess.select(r).text().isEmpty()) {
@@ -180,7 +180,7 @@ public class DocumentProcessor {
         List<Skill> foundSkills = new LinkedList<Skill>();
         String regex;
         for (Skill skill : allSkills) {
-            regex = ".*\\s" + skill.getSkill().toLowerCase() + "\\s.*";
+            regex = REGEX_WHITESPACE_BEFORE + skill.getSkill().toLowerCase() + REGEX_WHITESPACE_AFTER;
             if (omschrijving.matches(regex) && !foundSkills.contains(skill)) {
                 vacature.addSkill(skill);
                 foundSkills.add(skill);
@@ -191,6 +191,7 @@ public class DocumentProcessor {
     /**
      * Processes the educations in the omschrijving field of the vacature. When it finds one, it adds it to the
      * Many2Many relationship.
+     *
      * @param vacature Vacature to process
      */
     private void processEducation(Vacature vacature) {
@@ -203,7 +204,7 @@ public class DocumentProcessor {
         List<Education> foundEducations = new LinkedList<Education>();
         // Loop over all known skills, execute the regex it needs to fulfill. If it matches, it is added to the model
         for (Education education : allEducations) {
-            String regex = ".*\\s" + education.getString("education").toLowerCase() + "\\s.*";
+            String regex = REGEX_WHITESPACE_BEFORE + education.getString("education").toLowerCase() + REGEX_WHITESPACE_AFTER;
 
             if (omschrijving.matches(regex) && !foundEducations.contains(education)) {
                 vacature.addEducation(education);
@@ -213,13 +214,13 @@ public class DocumentProcessor {
     }
 
     private void processLocation(Vacature vacature) {
-        if(vacature.getPlaats() != null && !vacature.getPlaats().isEmpty()) {
+        if (vacature.getPlaats() != null && !vacature.getPlaats().isEmpty()) {
             Location location = new Location();
             location.setName(vacature.getPlaats());
 
             int index = allLocations.indexOf(location);
 
-            if(index == -1) {
+            if (index == -1) {
                 try {
                     location.getCoords();
                     location.saveIt();

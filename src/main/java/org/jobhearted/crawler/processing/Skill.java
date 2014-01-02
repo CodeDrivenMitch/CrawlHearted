@@ -47,4 +47,13 @@ public class Skill extends Model {
         }
         return false;
     }
+
+    /**
+     * Overriding hashCode to return the same information as equals
+     * @return hash of the skill
+     */
+    @Override
+    public int hashCode() {
+        return this.getSkill().hashCode();
+    }
 }

@@ -85,7 +85,7 @@ public class CrawlManager extends Model implements Runnable {
             Url url = new Url();
             url.setParentCrawlmanager(this);
             url.setFlag(Flag.FOUND);
-            url.setString(Url.COL_URL, this.getString("base_url"));
+            url.setString(Url.COL_URL, this.getString(COL_BASE_URL));
             this.addUrlToList(url);
         }
     }
