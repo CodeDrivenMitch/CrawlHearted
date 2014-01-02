@@ -12,7 +12,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,8 +39,9 @@ public class DocumentProcessor {
     private Url urlOfDocument;
 
     // Illegal character array for use in regex
-    private static final String[] illegalCharacter = {
-            "(", ")", ";", ".", ",", ":", "{", "}", "[", "]", "*", "&", "^", "%", "$", "@", "!", "?", "\"", "\\", "/"
+    private static final String[] illegalCharacters = {
+            "(", ")", ";", ".", ",", ":", "{", "}", "[", "]", "*",
+            "&", "^", "%", "$", "@", "!", "?", "\"", "\\", "/", "\'"
     };
 
     private DocumentProcessor(CrawlManager crawlManager) {
@@ -173,7 +173,7 @@ public class DocumentProcessor {
     private void processSkills(Vacature vacature) {
 
         String omschrijving = vacature.getOmschrijving().toLowerCase();
-        for (String i : illegalCharacter) {
+        for (String i : illegalCharacters) {
             omschrijving = omschrijving.replace(i, " ");
         }
 
@@ -196,7 +196,7 @@ public class DocumentProcessor {
     private void processEducation(Vacature vacature) {
         // Get the omschrijving and remove illegal characters from it
         String omschrijving = vacature.getOmschrijving().toLowerCase();
-        for (String i : illegalCharacter) {
+        for (String i : illegalCharacters) {
             omschrijving = omschrijving.replace(i, " ");
         }
 
@@ -225,7 +225,7 @@ public class DocumentProcessor {
                     location.saveIt();
                     location.add(vacature);
                     allLocations.add(location);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     logger.info("Could not get location!", e);
                 }
             } else {
