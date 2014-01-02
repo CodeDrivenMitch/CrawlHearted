@@ -41,14 +41,14 @@ public class MainWindow implements StatisticObserver {
     private JButton btParser;
     private JPanel paneCrawlers;
     private JScrollPane listScrollPane;
-    private JList<CrawlManager> listCrawlers;
+    private JList listCrawlers;
     private JButton btOpenSpecificCrawler;
 
     private Map<Flag, JTextField> totalUrlTextfieldMap;
     private static Map<CrawlManager, Map<Flag, Integer>> flagMap = new HashMap<CrawlManager, Map<Flag, Integer>>();
     private Map<CrawlmanagerState, JTextField> totalCrawlerTextfieldMap;
     private Map<CrawlManager, CrawlmanagerState> stateMap;
-    private DefaultListModel<CrawlManager> listModel;
+    private DefaultListModel listModel;
 
     private MainWindow() {
         StatisticsTracker.registerObserver(this);
@@ -93,7 +93,7 @@ public class MainWindow implements StatisticObserver {
             }
         });
 
-        listModel = new DefaultListModel<CrawlManager>();
+        listModel = new DefaultListModel();
         listCrawlers.setModel(listModel);
         listCrawlers.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
