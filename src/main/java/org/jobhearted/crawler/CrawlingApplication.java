@@ -34,7 +34,15 @@ public class CrawlingApplication {
         }
     }
 
+    /**
+     * Launches the window if there was no -nogui parameter when launching the program.
+     */
     private static void launchGui() {
         MainWindow.createMainWindow();
     }
+
+    /**
+     * Private constructor to hide the public implicit one
+     */
+    private CrawlingApplication() {}
 }

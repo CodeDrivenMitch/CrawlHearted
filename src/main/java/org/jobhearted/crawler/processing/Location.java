@@ -1,10 +1,13 @@
 package org.jobhearted.crawler.processing;
 
 import org.javalite.activejdbc.Model;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Location model in the database. Any locaion can have multiple vacatures and profiles linked to it.
@@ -61,14 +64,15 @@ public class Location extends Model {
     /**
      * This method contacts the google Geolocation api with the location name and gets the coordinates of that
      * place as a result. Those are set to the location.
-     * @throws Exception If there is no connection to the internet
+     * @throws IOException If there is no connection to the internet
      */
-    public void getCoords() throws Exception {
+    public void getCoords() throws IOException, JSONException {
         logger.info("getting location");
 
         String result = Jsoup.connect(URL_API.replace("$", getName().replace(" ", "+") ))
                 .ignoreContentType(true).execute().body();
 
+        // Get the right JSON information, takes a few steps to get there
         JSONObject json = new JSONObject(result)
                 .getJSONArray("results")
                 .getJSONObject(0)
@@ -80,6 +84,12 @@ public class Location extends Model {
         this.setLongitude(json.getDouble("lng"));
     }
 
+    /**
+     * Returns wether the object is equal or not. Is overridden to represent the right information, which is the
+     * location name field currently set.
+     * @param obj Object to compare to
+     * @return Equality
+     */
     @Override
     public boolean equals(Object obj) {
         if(!obj.getClass().equals(this.getClass()) ) {
@@ -90,6 +100,10 @@ public class Location extends Model {
 
     }
 
+    /**
+     * Overriding the hashcode to represent the right information
+     * @return hashcode
+     */
     @Override
     public int hashCode() {
         return getName().hashCode();

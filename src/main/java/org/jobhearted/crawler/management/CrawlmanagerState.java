@@ -1,10 +1,8 @@
 package org.jobhearted.crawler.management;
 
 /**
- * Created with IntelliJ IDEA for JobHearted.
- * User: Morlack
- * Date: 12/12/13
- * Time: 9:34 PM
+ * This enumeration represents the current state of a Crawlmanager. It also contains transitions like PAUSING and
+ * STOPPING, because we'd like to wait for the current task to end before transitioning to the next state.
  */
 public enum CrawlmanagerState {
     PAUSING,

@@ -50,6 +50,9 @@ public class CrawlManager extends Model implements Runnable {
         processor = DocumentProcessor.createProcessor(this);
     }
 
+    /**
+     * Checks if a recrawl check is needed and if so executes it.
+     */
     private void checkForRecrawl() {
         long recrawlCheckTime = 10 * 60 * 1000;
         long recrawlTime = 24*60*60*1000;
@@ -96,26 +99,35 @@ public class CrawlManager extends Model implements Runnable {
     @Override
     public void run() {
         // open DB conn for this thread
-        Database.openDatabaseConnection();
+        try {
+            Database.openDatabaseConnection();
 
-        while (this.state != CrawlmanagerState.STOPPING) {
+            while (this.state != CrawlmanagerState.STOPPING) {
 
-            while (this.state == CrawlmanagerState.PAUSING || this.state == CrawlmanagerState.PAUSED) {
-                this.setState(CrawlmanagerState.PAUSED);
-                try {
-                    sleep(1000);
-                } catch (InterruptedException e) {
-                    logger.warn("", e);
+                while (this.state == CrawlmanagerState.PAUSING || this.state == CrawlmanagerState.PAUSED) {
+                    this.setState(CrawlmanagerState.PAUSED);
+                    try {
+                        sleep(1000);
+                    } catch (InterruptedException e) {
+                        logger.warn("", e);
+                    }
                 }
+
+                // do the crawling :)
+                doTheCrawl();
             }
 
-            // do the crawling :)
-            doTheCrawl();
+            this.setState(CrawlmanagerState.STOPPED);
+        } catch (Exception e) {
+            // Catching any exception during thread execution for both debugging as logging
+            logger.warn("CrawlManager made a hard crash!", e);
         }
-
-        this.setState(CrawlmanagerState.STOPPED);
     }
 
+    /**
+     * Executes a crawl. Gets the url, sends it to the crawl function and sleeps for the time necessary to
+     * adhere to the policy
+     */
     private void doTheCrawl() {
         // create a Date for later detemination of execution length
         Date timeStarted = new Date();
@@ -130,6 +142,11 @@ public class CrawlManager extends Model implements Runnable {
         sleepForPolicy(timeStarted, timeEnded);
     }
 
+    /**
+     * Checks the url list for the url of highest priority to crawl. To priority is defined in the static field
+     * flagPriority, first in the array is higher.
+     * @return Url up for crawling next
+     */
     private Url getUrlToCrawl() {
         Url found;
 
@@ -148,6 +165,10 @@ public class CrawlManager extends Model implements Runnable {
         return null;
     }
 
+    /**
+     * Actually crawls the url. Retrieves the document of the url and sends it to the processor.
+     * @param url Url to visit
+     */
     private void crawlUrl(Url url) {
         try {
             logger.info("Crawling " + url.getString("url"));
@@ -165,6 +186,12 @@ public class CrawlManager extends Model implements Runnable {
         }
     }
 
+    /**
+     * Function called at the end of each crawl. Sleeps for the remaining time to adhere to the timeout policy,
+     * reducing stress on the webserver of the website being crawled
+     * @param startTime Time the crawl started
+     * @param endTime Time the crawl ended
+     */
     private void sleepForPolicy(Date startTime, Date endTime) {
         int sleepPolicy = 4000;
         long timeToSleep = sleepPolicy - (endTime.getTime() - startTime.getTime());
@@ -179,36 +206,71 @@ public class CrawlManager extends Model implements Runnable {
         }
     }
 
+    /**
+     * Adds the url to the url list after saving it to the database, so all data is consistent
+     * @param url Url to add
+     */
     public void addUrlToList(Url url) {
         url.saveIt();
         this.urlList.add(url);
     }
 
+    /**
+     * Returns the state of the crawlmanager. To represent the current state the CrawlmanagerState Enumeration is used.
+     * @return State of the Crawlmanager
+     * @see CrawlmanagerState
+     */
     public CrawlmanagerState getState() {
         return this.state;
     }
 
+    /**
+     * Sets the state of the crawlmanager. To represent the current state the CrawlmanagerState Enumeration is used.
+     * @param newState new state of the Crawlmanager
+     * @see CrawlmanagerState
+     */
     public void setState(CrawlmanagerState newState) {
         StatisticsTracker.switchCrawlerState(this, newState);
         this.state = newState;
     }
 
+    /**
+     * Returns the current UrlList. Used in the blacklist for checking if the url already exists in our data.
+     * @return UrlList
+     */
     public UrlList getUrlList() {
         return urlList;
     }
 
+    /**
+     * Returns the current Blacklist Class, used for GUI blacklist editing
+     * @return Blacklist class
+     */
     public Blacklist getBlacklist() {
         return this.blacklist;
     }
 
+    /**
+     * Getter for the id field of the crawlManager
+     * @return id value
+     */
     public int getID() {
         return this.getInteger(COL_ID);
     }
 
+    /**
+     * Getter for the base_url field of the CrawlManager
+     * @return The base URL
+     */
     public String getBaseUrl() {
         return this.getString(COL_BASE_URL);
     }
 
+    /**
+     * Overriding the toString method to provide extra information about the state. Useful when using it in a ListModel,
+     * as done in the GUI.
+     * @return Description
+     */
     @Override
     public String toString() {
         if(getState() != null) {

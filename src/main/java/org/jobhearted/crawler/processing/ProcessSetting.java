@@ -3,10 +3,7 @@ package org.jobhearted.crawler.processing;
 import org.javalite.activejdbc.Model;
 
 /**
- * Created with IntelliJ IDEA for JobHearted.
- * User: Morlack
- * Date: 12/10/13
- * Time: 12:41 PM
+ * ActivJDBC model to represent the process settings of the crawlers
  */
 public class ProcessSetting extends Model {
     // Database fields

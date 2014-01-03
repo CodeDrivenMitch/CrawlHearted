@@ -48,7 +48,7 @@ public class Blacklist {
     }
 
     /**
-     * Adds an entry to the blacklist.
+     * Adds an entry to the blacklist. This is an API part for usage in the GUI
      *
      * @param word    the word to add to the blacklist
      * @param persist Whether the entry should be saved to the database or not

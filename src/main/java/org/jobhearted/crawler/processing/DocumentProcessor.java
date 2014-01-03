@@ -6,61 +6,81 @@ import org.jobhearted.crawler.objects.Blacklist;
 import org.jobhearted.crawler.objects.Flag;
 import org.jobhearted.crawler.objects.Url;
 import org.jobhearted.crawler.objects.Vacature;
+import org.json.JSONException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA for JobHearted.
- * User: Morlack
- * Date: 12/9/13
- * Time: 12:28 PM
+ * Class used by the CrawlManager to process information in documents. Makes use of the Blacklist class to process URLs
+ * and makes use of the ProcessSetting class to retrieve information in a document and store it in the Vacature Model.
+ *
+ * @see CrawlManager
+ * @see Vacature
+ * @see Blacklist
+ * @see Url
+ * @see ProcessSetting
  */
 
 
 public class DocumentProcessor {
 
+    public static final String REGEX_WHITESPACE_BEFORE = ".*\\s";
+    public static final String REGEX_WHITESPACE_AFTER = "\\s.*";
     // Illegal character array for use in regex
     private static final String[] illegalCharacters = {
             "(", ")", ";", ".", ",", ":", "{", "}", "[", "]", "*",
             "&", "^", "%", "$", "@", "!", "?", "\"", "\\", "/", "\'"
     };
-    public static final String REGEX_WHITESPACE_BEFORE = ".*\\s";
-    public static final String REGEX_WHITESPACE_AFTER = "\\s.*";
+    // Logger
     private static Logger logger = LoggerFactory.getLogger(DocumentProcessor.class);
-    // Static lists
+    // Static lists of data
     private static List<Skill> allSkills;
     private static List<Education> allEducations;
     private static List<Location> allLocations;
-    Map<ProcessData, String> settingsMap;
+    // instance fields
+    private Map<ProcessData, String> settingsMap;
     private CrawlManager crawlManager;
     private Blacklist blacklist;
     private Document documentToProcess;
     private Url urlOfDocument;
 
+    /**
+     * Constructor for the class
+     *
+     * @param crawlManager crawlManager to create the processor for
+     */
     private DocumentProcessor(CrawlManager crawlManager) {
         this.crawlManager = crawlManager;
         this.blacklist = crawlManager.getBlacklist();
 
-        settingsMap = new HashMap<ProcessData, String>();
+        initializeProcessSettings();
+        initializeDataMaps();
+    }
 
-        List<ProcessSetting> databaseList = ProcessSetting.find(ProcessSetting.COL_CRAWLER_ID + " = ?", crawlManager.getInteger("id"));
-        for (ProcessSetting processSetting : databaseList) {
-            ProcessData key = ProcessData.valueOf(processSetting.getString(ProcessSetting.COL_SETTING_KEY));
-            String value = processSetting.getString(ProcessSetting.COL_SETTING_VALUE);
+    /**
+     * Factory Method for the Processor. May be replaced with a normal constructor in the feature as right now, it adds
+     * no functionality.
+     *
+     * @param crawlManager Crawlmanager to create a processor for
+     * @return The processor created.
+     */
+    public static DocumentProcessor createProcessor(CrawlManager crawlManager) {
+        return new DocumentProcessor(crawlManager);
+    }
 
-            settingsMap.put(key, value);
-        }
-
-        logger.info("Loaded {} Setting entries!", settingsMap.size());
-
+    /**
+     * Initializes the Datamaps if they are null, only needed for the first processor constructed.
+     */
+    private void initializeDataMaps() {
         if (allSkills == null) {
             allSkills = Skill.findAll();
             logger.info("Loaded {} Skill entries!", allSkills.size());
@@ -78,13 +98,31 @@ public class DocumentProcessor {
             }
             logger.info("Loaded {} Location entries!", allLocations.size());
         }
-
     }
 
-    public static DocumentProcessor createProcessor(CrawlManager crawlManager) {
-        return new DocumentProcessor(crawlManager);
+    /**
+     * Initializes the process Settings for the processor. Loaded for every processor individually.
+     */
+    private void initializeProcessSettings() {
+        settingsMap = new HashMap<ProcessData, String>();
+
+        List<ProcessSetting> databaseList = ProcessSetting.find(ProcessSetting.COL_CRAWLER_ID + " = ?", crawlManager.getInteger("id"));
+        for (ProcessSetting processSetting : databaseList) {
+            ProcessData key = ProcessData.valueOf(processSetting.getString(ProcessSetting.COL_SETTING_KEY));
+            String value = processSetting.getString(ProcessSetting.COL_SETTING_VALUE);
+
+            settingsMap.put(key, value);
+        }
+
+        logger.info("Loaded {} Setting entries!", settingsMap.size());
     }
 
+    /**
+     * Processes the given document.
+     *
+     * @param url      Url the document belongs to
+     * @param document the document to be processed
+     */
     public void processDocument(Url url, Document document) {
         this.documentToProcess = document;
         this.urlOfDocument = url;
@@ -92,8 +130,11 @@ public class DocumentProcessor {
         processContent();
     }
 
+    /**
+     * Processes all links of the document in the documentToProcess instance variable. Uses the Blacklist to check if
+     * and url is allowed. If so, it sends it to the crawlmanager to add it to the list.
+     */
     private void processLinks() {
-
         Elements elements = documentToProcess.getElementsByTag("a");
 
         for (Element e : elements) {
@@ -110,6 +151,10 @@ public class DocumentProcessor {
         }
     }
 
+    /**
+     * Calls the right functions to process the current document, and if no vacature is found removes all vacatures that
+     * Url has.
+     */
     private void processContent() {
         if (docHasRequirements(ProcessData.REQUIREMENTFORVACATURE)) {
             Vacature vacature = processVacature();
@@ -123,6 +168,12 @@ public class DocumentProcessor {
         }
     }
 
+    /**
+     * Checks whether a document has the needed requirements stored in the settingsMap, indicated by the ProcessData
+     *
+     * @param data Key of the datamap
+     * @return Whether the document has the requirements or not.
+     */
     private boolean docHasRequirements(ProcessData data) {
         String requirements = settingsMap.get(data);
         if (requirements != null && !requirements.isEmpty()) {
@@ -141,6 +192,10 @@ public class DocumentProcessor {
         return true;
     }
 
+    /**
+     * Function called when there are no vacatures on a page. Sets all the vacatures registered with that page to
+     * inactive, to make sure they they don't show up in the matcher.
+     */
     private void removeAnyVacaturesFromUrl() {
         List<Vacature> list = Vacature.where(Vacature.COL_URL_ID + " = ?", urlOfDocument.getInteger(Url.COL_ID));
 
@@ -151,6 +206,12 @@ public class DocumentProcessor {
         }
     }
 
+    /**
+     * Processes the Document into a Vacature. Contains al information we can find, so we can refine it later.
+     * Uses the settingsMap for DOM selectors to retrieve the info.
+     *
+     * @return The Processed Vacancy
+     */
     private Vacature processVacature() {
         Vacature vacature = new Vacature();
 
@@ -170,6 +231,12 @@ public class DocumentProcessor {
         return vacature;
     }
 
+    /**
+     * Checks the description field of the vacature against all known skills in the database. If a skill is found,
+     * it is added to the vacature using the Many2Many ActiveJDBC relationship with the Skill model.
+     *
+     * @param vacature Vacature to process skills of
+     */
     private void processSkills(Vacature vacature) {
 
         String omschrijving = vacature.getOmschrijving().toLowerCase();
@@ -213,25 +280,38 @@ public class DocumentProcessor {
         }
     }
 
+    /**
+     * Processes the Location field of the vacature. If the Location is a new one, get the coordinates of that location
+     * and store it in the database by using the Google API. Its is then added to the vacature as a Many2Many relationship.
+     * <p/>
+     * Why Many2Many and not OneToMany? Some locations are like "Apeldoorn, Amersfoort,..". We want to store them all.
+     *
+     * @param vacature Vacature to process Location of.
+     */
     private void processLocation(Vacature vacature) {
         if (vacature.getPlaats() != null && !vacature.getPlaats().isEmpty()) {
-            Location location = new Location();
-            location.setName(vacature.getPlaats());
+            String[] locs = vacature.getPlaats().split(",");
+            for (String loc : locs) {
+                Location location = new Location();
+                location.setName(loc);
 
-            int index = allLocations.indexOf(location);
-
-            if (index == -1) {
-                try {
-                    location.getCoords();
-                    location.saveIt();
-                    location.add(vacature);
-                    allLocations.add(location);
-                } catch (Exception e) {
-                    logger.info("Could not get location!", e);
+                int index = allLocations.indexOf(location);
+                if (index == -1) {
+                    // This location does not exist yet
+                    try {
+                        location.getCoords();
+                        location.saveIt();
+                        vacature.addLocation(location);
+                        allLocations.add(location);
+                    } catch (IOException e) {
+                        logger.info("Could not get location!", e);
+                    } catch (JSONException e) {
+                        logger.info("Failed to parse the JSON, is it valid?", e);
+                    }
+                } else {
+                    location = allLocations.get(index);
+                    vacature.addLocation(location);
                 }
-            } else {
-                location = allLocations.get(index);
-                location.add(vacature);
             }
         }
     }

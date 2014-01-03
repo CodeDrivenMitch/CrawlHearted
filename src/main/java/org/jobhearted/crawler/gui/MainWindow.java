@@ -142,7 +142,6 @@ public class MainWindow implements StatisticObserver {
         int selected = listCrawlers.getSelectedIndex();
         if(selected != -1){
             // TODO: Add the window
-            System.out.println("Clicked crawler " + listModel.getElementAt(selected).toString());
         }
     }
 
@@ -192,11 +191,18 @@ public class MainWindow implements StatisticObserver {
         }
     }
 
+    /**
+     * this method is called when the observable StatisticsTracker has new information about an url for us.
+     * Updated the info and recalculates the total for that flag.
+     * @param crawlManager CrawlManager of which and url's flag was changed
+     * @param flag  The flag which has new information
+     * @param newCount New count of the urls which has that flag
+     */
     @Override
     public void updateFlag(CrawlManager crawlManager, Flag flag, int newCount) {
         // Check if the crawlmanager is in the flagMap
         if (flagMap.get(crawlManager) == null) {
-            flagMap.put(crawlManager, createMapForCrawlManager(crawlManager));
+            flagMap.put(crawlManager, createNewFlagMap());
         }
         // put in the new count
         flagMap.get(crawlManager).put(flag, newCount);
@@ -204,7 +210,11 @@ public class MainWindow implements StatisticObserver {
         totalUrlTextfieldMap.get(flag).setText(Integer.toString(getCountForFlag(flag)));
     }
 
-    private Map<Flag,Integer> createMapForCrawlManager(CrawlManager crawlManager) {
+    /**
+     * Creates an Empty FlagMap
+     * @return created flagmap
+     */
+    private Map<Flag,Integer> createNewFlagMap() {
         Map<Flag, Integer> flagIntegerMap = new HashMap<Flag, Integer>();
         for (Flag f : Flag.values()) {
             flagIntegerMap.put(f, 0);

@@ -1,7 +1,6 @@
 package org.jobhearted.crawler.objects;
 
 import org.javalite.activejdbc.Model;
-import org.javalite.activejdbc.annotations.BelongsTo;
 import org.jobhearted.crawler.processing.Education;
 import org.jobhearted.crawler.processing.Location;
 import org.jobhearted.crawler.processing.ProcessData;
@@ -14,9 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The vacature data class. This is an ActiveJDBC dataobject.
+ * The vacature data class. This is an ActiveJDBC data-object.
 */
-@BelongsTo(parent = Location.class, foreignKeyName = "location_id")
 public class Vacature extends Model {
     // Database fields
     public static final String COL_URL_ID = "url_id";
@@ -150,6 +148,11 @@ public class Vacature extends Model {
         logger.debug("Added Education {}", education.getEducation());
     }
 
+    public void addLocation(Location location) {
+        this.add(location);
+        logger.info("Added Location {}", location.getName());
+    }
+
     /**
      * Getter for the omschrijving field of the model
      * @return de omschrijving
@@ -166,14 +169,19 @@ public class Vacature extends Model {
         this.setString(COL_OMSCHRIJVING, omschrijving);
     }
 
+    /**
+     * Sets the Id of the url the vacature belongs to
+     * TODO: Replace this with an ActiveJDBC relationship
+     * @param newId ID to set to
+     */
     public void setUrlId(int newId) {
         this.setInteger(COL_URL_ID, newId);
     }
 
-    public int getUrlId() {
-        return this.getInteger(COL_URL_ID);
-    }
-
+    /**
+     * Sets the Active field of the vacature in the database. Sets 0 for inactive and 1 for active.
+     * @param active whether it should be set to active or not
+     */
     public void setActive(boolean active) {
         if(active) {
             this.setInteger(COL_ACTIVE, 1);
@@ -182,6 +190,11 @@ public class Vacature extends Model {
         }
     }
 
+    /**
+     * Returns the location of the vacature
+     * NOTE: This is the raw location string, not the processed location
+     * @return location
+     */
     public String getPlaats() {
         return this.getString(COL_PLAATS);
     }

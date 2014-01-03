@@ -1,9 +1,9 @@
-package org.jobhearted.crawler.processing;
+package org.jobhearted.crawler.relationships;
 
 import org.javalite.activejdbc.Model;
 
 /**
- * Class the represent the Many2Many association betwees Profile and Education
+ * Class to represent the Many2Many association betwees Profile and Education
  */
 @SuppressWarnings("UnusedDeclaration")
 public class ProfilesEducations extends Model {

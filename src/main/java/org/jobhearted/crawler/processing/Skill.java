@@ -42,10 +42,7 @@ public class Skill extends Model {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj.getClass().equals(this.getClass())) {
-            if (this.getSkill().equalsIgnoreCase(((Skill) obj).getSkill())) return true;
-        }
-        return false;
+        return obj.getClass().equals(this.getClass()) && this.getSkill().equalsIgnoreCase(((Skill) obj).getSkill());
     }
 
     /**
