@@ -1,4 +1,4 @@
-package org.jobhearted.crawler.processing;
+package org.jobhearted.crawler.processing.objects;
 
 /**
  * Created with IntelliJ IDEA for JobHearted.

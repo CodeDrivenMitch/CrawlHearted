@@ -1,6 +1,7 @@
-package org.jobhearted.crawler.objects;
+package org.jobhearted.crawler.processing;
 
 import org.jobhearted.crawler.management.CrawlManager;
+import org.jobhearted.crawler.processing.objects.BlacklistEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

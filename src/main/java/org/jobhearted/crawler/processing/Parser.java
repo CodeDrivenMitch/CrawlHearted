@@ -1,10 +1,11 @@
-package org.jobhearted.crawler.parser;
+package org.jobhearted.crawler.processing;
 
 import org.javalite.activejdbc.Model;
 import org.jobhearted.crawler.database.Database;
-import org.jobhearted.crawler.objects.Profile;
-import org.jobhearted.crawler.processing.Education;
-import org.jobhearted.crawler.processing.Skill;
+import org.jobhearted.crawler.gui.ProgressWindow;
+import org.jobhearted.crawler.processing.objects.Profile;
+import org.jobhearted.crawler.processing.objects.Education;
+import org.jobhearted.crawler.processing.objects.Skill;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

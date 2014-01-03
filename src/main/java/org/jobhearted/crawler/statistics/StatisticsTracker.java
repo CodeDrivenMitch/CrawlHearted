@@ -2,8 +2,8 @@ package org.jobhearted.crawler.statistics;
 
 import org.jobhearted.crawler.management.CrawlManager;
 import org.jobhearted.crawler.management.CrawlmanagerState;
-import org.jobhearted.crawler.objects.Flag;
-import org.jobhearted.crawler.observers.StatisticObserver;
+import org.jobhearted.crawler.processing.objects.Flag;
+import org.jobhearted.crawler.statistics.observers.StatisticObserver;
 
 import java.util.*;
 

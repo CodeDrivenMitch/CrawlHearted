@@ -1,8 +1,7 @@
-package org.jobhearted.crawler.processing;
+package org.jobhearted.crawler.processing.objects;
 
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Many2Many;
-import org.jobhearted.crawler.objects.Vacature;
 
 /**
  * Created with IntelliJ IDEA for JobHearted.

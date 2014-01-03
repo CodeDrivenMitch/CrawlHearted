@@ -2,10 +2,9 @@ package org.jobhearted.crawler.management;
 
 import org.javalite.activejdbc.Model;
 import org.jobhearted.crawler.database.Database;
-import org.jobhearted.crawler.objects.Blacklist;
-import org.jobhearted.crawler.objects.Flag;
-import org.jobhearted.crawler.objects.Url;
-import org.jobhearted.crawler.objects.UrlList;
+import org.jobhearted.crawler.processing.Blacklist;
+import org.jobhearted.crawler.processing.objects.Flag;
+import org.jobhearted.crawler.processing.objects.Url;
 import org.jobhearted.crawler.processing.DocumentProcessor;
 import org.jobhearted.crawler.statistics.StatisticsTracker;
 import org.jsoup.Jsoup;

@@ -1,4 +1,4 @@
-package org.jobhearted.crawler.parser;
+package org.jobhearted.crawler.gui;
 
 import javax.swing.*;
 

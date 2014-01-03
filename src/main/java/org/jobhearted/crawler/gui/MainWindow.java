@@ -2,9 +2,8 @@ package org.jobhearted.crawler.gui;
 
 import org.jobhearted.crawler.management.CrawlManager;
 import org.jobhearted.crawler.management.CrawlmanagerState;
-import org.jobhearted.crawler.objects.Flag;
-import org.jobhearted.crawler.observers.StatisticObserver;
-import org.jobhearted.crawler.parser.ParseUi;
+import org.jobhearted.crawler.processing.objects.Flag;
+import org.jobhearted.crawler.statistics.observers.StatisticObserver;
 import org.jobhearted.crawler.statistics.StatisticsTracker;
 
 import javax.swing.*;
@@ -109,7 +108,7 @@ public class MainWindow implements StatisticObserver {
         btResumeAll.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(e.getSource() == btResumeAll) {
+                if (e.getSource() == btResumeAll) {
                     setStateOfAllCrawlers(CrawlmanagerState.RUNNING);
                 }
 

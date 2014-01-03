@@ -1,4 +1,4 @@
-package org.jobhearted.crawler.objects;
+package org.jobhearted.crawler.processing.objects;
 
 /**
  * The Url flag enumeration for usage in the Url class and every class that works with Url. Represents the current state

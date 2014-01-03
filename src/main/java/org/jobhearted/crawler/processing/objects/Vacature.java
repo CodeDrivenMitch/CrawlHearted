@@ -1,10 +1,6 @@
-package org.jobhearted.crawler.objects;
+package org.jobhearted.crawler.processing.objects;
 
 import org.javalite.activejdbc.Model;
-import org.jobhearted.crawler.processing.Education;
-import org.jobhearted.crawler.processing.Location;
-import org.jobhearted.crawler.processing.ProcessData;
-import org.jobhearted.crawler.processing.Skill;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

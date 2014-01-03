@@ -1,4 +1,6 @@
-package org.jobhearted.crawler.parser;
+package org.jobhearted.crawler.gui;
+
+import org.jobhearted.crawler.processing.Parser;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

@@ -2,10 +2,7 @@ package org.jobhearted.crawler.processing;
 
 import org.javalite.activejdbc.Model;
 import org.jobhearted.crawler.management.CrawlManager;
-import org.jobhearted.crawler.objects.Blacklist;
-import org.jobhearted.crawler.objects.Flag;
-import org.jobhearted.crawler.objects.Url;
-import org.jobhearted.crawler.objects.Vacature;
+import org.jobhearted.crawler.processing.objects.*;
 import org.json.JSONException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

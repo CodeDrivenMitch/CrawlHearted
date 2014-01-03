@@ -1,8 +1,6 @@
-package org.jobhearted.crawler.objects;
+package org.jobhearted.crawler.processing.objects;
 
 import org.javalite.activejdbc.Model;
-import org.jobhearted.crawler.processing.Education;
-import org.jobhearted.crawler.processing.Skill;
 
 /**
  * This is the Profile Data-object, an ActiveJDBC model. Used in the JSON parser for saving LinkedIn profiles.

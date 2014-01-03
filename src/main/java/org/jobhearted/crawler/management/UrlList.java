@@ -1,4 +1,7 @@
-package org.jobhearted.crawler.objects;
+package org.jobhearted.crawler.management;
+
+import org.jobhearted.crawler.processing.objects.Flag;
+import org.jobhearted.crawler.processing.objects.Url;
 
 import java.util.ArrayList;
 
