@@ -2,6 +2,7 @@ package org.jobhearted.crawler.processing.objects;
 
 import org.javalite.activejdbc.Model;
 import org.jobhearted.crawler.management.CrawlManager;
+import org.jobhearted.crawler.management.Settings;
 import org.jobhearted.crawler.statistics.StatisticsTracker;
 
 import java.sql.Timestamp;
@@ -32,29 +33,31 @@ public class Url extends Model {
 
     /**
      * Getter for the Flag field
+     *
      * @return Flag of the url
      * @see Flag
      */
     public Flag getFlag() {
-        if(this.getString(COL_FLAG) != null) {
+        if (this.getString(COL_FLAG) != null) {
             return Flag.valueOf(this.getString(COL_FLAG));
         }
         return null;
     }
 
     /**
-     *  Sets the flag of the url, also updates the first and last visited fields if the flag indicates the visit has
-     *  been successful
+     * Sets the flag of the url, also updates the first and last visited fields if the flag indicates the visit has
+     * been successful
+     *
      * @param flag The new flag of the url
      */
     public void setFlag(Flag flag) {
         StatisticsTracker.switchFlag(crawlManager, getFlag(), flag);
-        if(flag != null) {
+        if (flag != null) {
             this.set(COL_FLAG, flag.toString());
-            if(flag == Flag.VISITED) {
+            if (flag == Flag.VISITED) {
                 Timestamp now = new Timestamp(new Date().getTime());
                 this.setTimestamp(COL_LAST_SEEN, now);
-                if(this.getTimestamp(COL_FIRST_SEEN) == null) {
+                if (this.getTimestamp(COL_FIRST_SEEN) == null) {
                     this.setTimestamp(COL_FIRST_SEEN, now);
                 }
             }
@@ -62,9 +65,9 @@ public class Url extends Model {
     }
 
     public void failedConnection() {
-        if(this.getFlag() == Flag.RETRY) {
+        if (this.getFlag() == Flag.RETRY) {
             int currentNumber = this.getInteger(COL_RETRIES);
-            if(currentNumber + 1 >= 4) {
+            if (currentNumber >= Settings.RETRY_POLICY) {
                 this.setFlag(Flag.DEAD);
             } else {
                 this.setInteger(COL_RETRIES, currentNumber + 1);
@@ -87,7 +90,7 @@ public class Url extends Model {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj.getClass().equals(Url.class)) {
+        if (obj.getClass().equals(Url.class)) {
             Url other = (Url) obj;
             return other.get(COL_URL).equals(this.getString(COL_URL));
         } else {

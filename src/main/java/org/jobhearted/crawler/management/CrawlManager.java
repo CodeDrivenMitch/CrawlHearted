@@ -3,9 +3,9 @@ package org.jobhearted.crawler.management;
 import org.javalite.activejdbc.Model;
 import org.jobhearted.crawler.database.Database;
 import org.jobhearted.crawler.processing.Blacklist;
+import org.jobhearted.crawler.processing.DocumentProcessor;
 import org.jobhearted.crawler.processing.objects.Flag;
 import org.jobhearted.crawler.processing.objects.Url;
-import org.jobhearted.crawler.processing.DocumentProcessor;
 import org.jobhearted.crawler.statistics.StatisticsTracker;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
@@ -54,12 +54,11 @@ public class CrawlManager extends Model implements Runnable {
      */
     private void checkForRecrawl() {
         long recrawlCheckTime = 10 * 60 * 1000;
-        long recrawlTime = 24*60*60*1000;
 
         Date now = new Date();
         if (lastRecrawlChecked == null || now.getTime() - lastRecrawlChecked.getTime() > recrawlCheckTime) {
             for (Url url : urlList.getAllWithFlag(Flag.VISITED)) {
-                if(url.getLastVisited() != null && now.getTime() - url.getLastVisited().getTime() > recrawlTime) {
+                if (url.getLastVisited() != null && now.getTime() - url.getLastVisited().getTime() > Settings.RECRAWL_TIME) {
                     url.setFlag(Flag.RECRAWL);
                 }
             }
@@ -144,6 +143,7 @@ public class CrawlManager extends Model implements Runnable {
     /**
      * Checks the url list for the url of highest priority to crawl. To priority is defined in the static field
      * flagPriority, first in the array is higher.
+     *
      * @return Url up for crawling next
      */
     private Url getUrlToCrawl() {
@@ -166,6 +166,7 @@ public class CrawlManager extends Model implements Runnable {
 
     /**
      * Actually crawls the url. Retrieves the document of the url and sends it to the processor.
+     *
      * @param url Url to visit
      */
     private void crawlUrl(Url url) {
@@ -188,14 +189,13 @@ public class CrawlManager extends Model implements Runnable {
     /**
      * Function called at the end of each crawl. Sleeps for the remaining time to adhere to the timeout policy,
      * reducing stress on the webserver of the website being crawled
+     *
      * @param startTime Time the crawl started
-     * @param endTime Time the crawl ended
+     * @param endTime   Time the crawl ended
      */
     private void sleepForPolicy(Date startTime, Date endTime) {
-        int sleepPolicy = 4000;
-        long timeToSleep = sleepPolicy - (endTime.getTime() - startTime.getTime());
+        long timeToSleep = Settings.CRAWL_TIMEOUT - (endTime.getTime() - startTime.getTime());
 
-        logger.debug("Time taken was " + (sleepPolicy - timeToSleep) + " miliseconds!");
         if (timeToSleep > 0) {
             try {
                 sleep(timeToSleep);
@@ -207,6 +207,7 @@ public class CrawlManager extends Model implements Runnable {
 
     /**
      * Adds the url to the url list after saving it to the database, so all data is consistent
+     *
      * @param url Url to add
      */
     public void addUrlToList(Url url) {
@@ -216,6 +217,7 @@ public class CrawlManager extends Model implements Runnable {
 
     /**
      * Returns the state of the crawlmanager. To represent the current state the CrawlmanagerState Enumeration is used.
+     *
      * @return State of the Crawlmanager
      * @see CrawlmanagerState
      */
@@ -225,6 +227,7 @@ public class CrawlManager extends Model implements Runnable {
 
     /**
      * Sets the state of the crawlmanager. To represent the current state the CrawlmanagerState Enumeration is used.
+     *
      * @param newState new state of the Crawlmanager
      * @see CrawlmanagerState
      */
@@ -235,6 +238,7 @@ public class CrawlManager extends Model implements Runnable {
 
     /**
      * Returns the current UrlList. Used in the blacklist for checking if the url already exists in our data.
+     *
      * @return UrlList
      */
     public UrlList getUrlList() {
@@ -243,6 +247,7 @@ public class CrawlManager extends Model implements Runnable {
 
     /**
      * Returns the current Blacklist Class, used for GUI blacklist editing
+     *
      * @return Blacklist class
      */
     public Blacklist getBlacklist() {
@@ -251,6 +256,7 @@ public class CrawlManager extends Model implements Runnable {
 
     /**
      * Getter for the id field of the crawlManager
+     *
      * @return id value
      */
     public int getID() {
@@ -259,6 +265,7 @@ public class CrawlManager extends Model implements Runnable {
 
     /**
      * Getter for the base_url field of the CrawlManager
+     *
      * @return The base URL
      */
     public String getBaseUrl() {
@@ -268,11 +275,12 @@ public class CrawlManager extends Model implements Runnable {
     /**
      * Overriding the toString method to provide extra information about the state. Useful when using it in a ListModel,
      * as done in the GUI.
+     *
      * @return Description
      */
     @Override
     public String toString() {
-        if(getState() != null) {
+        if (getState() != null) {
             return getBaseUrl() + "  -  " + getState().toString();
         } else {
             return getBaseUrl() + " - LOADING";

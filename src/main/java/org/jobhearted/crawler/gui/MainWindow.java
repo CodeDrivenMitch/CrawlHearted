@@ -3,8 +3,8 @@ package org.jobhearted.crawler.gui;
 import org.jobhearted.crawler.management.CrawlManager;
 import org.jobhearted.crawler.management.CrawlmanagerState;
 import org.jobhearted.crawler.processing.objects.Flag;
-import org.jobhearted.crawler.statistics.observers.StatisticObserver;
 import org.jobhearted.crawler.statistics.StatisticsTracker;
+import org.jobhearted.crawler.statistics.observers.StatisticObserver;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -49,6 +49,7 @@ public class MainWindow implements StatisticObserver {
     private JScrollPane listScrollPane;
     // Other components
     private JList listCrawlers;
+    private JButton btOpenSettings;
     // Instance variables
     private Map<Flag, JTextField> totalUrlTextfieldMap;
     private Map<CrawlmanagerState, JTextField> totalCrawlerTextfieldMap;
@@ -71,6 +72,14 @@ public class MainWindow implements StatisticObserver {
         addButtonListeners();
 
         initializeListModel();
+        btOpenSettings.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == btOpenSettings) {
+                    SettingsWindow.getSettingsWindow();
+                }
+            }
+        });
     }
 
     public static MainWindow createMainWindow() {
@@ -139,7 +148,7 @@ public class MainWindow implements StatisticObserver {
      */
     private void openSelectedCrawler() {
         int selected = listCrawlers.getSelectedIndex();
-        if(selected != -1){
+        if (selected != -1) {
             // TODO: Add the window
         }
     }
@@ -147,6 +156,7 @@ public class MainWindow implements StatisticObserver {
     /**
      * Pushes the specified state to All crawl managers registered to the statistics tracker, and are thus in our
      * stateMap
+     *
      * @param newState State to push
      */
     private void setStateOfAllCrawlers(CrawlmanagerState newState) {
@@ -193,9 +203,10 @@ public class MainWindow implements StatisticObserver {
     /**
      * this method is called when the observable StatisticsTracker has new information about an url for us.
      * Updated the info and recalculates the total for that flag.
+     *
      * @param crawlManager CrawlManager of which and url's flag was changed
-     * @param flag  The flag which has new information
-     * @param newCount New count of the urls which has that flag
+     * @param flag         The flag which has new information
+     * @param newCount     New count of the urls which has that flag
      */
     @Override
     public void updateFlag(CrawlManager crawlManager, Flag flag, int newCount) {
@@ -211,9 +222,10 @@ public class MainWindow implements StatisticObserver {
 
     /**
      * Creates an Empty FlagMap
+     *
      * @return created flagmap
      */
-    private Map<Flag,Integer> createNewFlagMap() {
+    private Map<Flag, Integer> createNewFlagMap() {
         Map<Flag, Integer> flagIntegerMap = new HashMap<Flag, Integer>();
         for (Flag f : Flag.values()) {
             flagIntegerMap.put(f, 0);
@@ -269,6 +281,7 @@ public class MainWindow implements StatisticObserver {
 
     /**
      * This method returns the total count of all URLs that have a certain flag. Used for updating the GUI
+     *
      * @param flag Flag to query count of
      * @return Count of URLS with this flag
      */

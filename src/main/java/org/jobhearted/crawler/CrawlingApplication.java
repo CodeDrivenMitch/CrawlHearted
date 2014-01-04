@@ -4,6 +4,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.jobhearted.crawler.exceptions.UnableToStartManagerException;
 import org.jobhearted.crawler.gui.MainWindow;
 import org.jobhearted.crawler.management.ProcessManager;
+import org.jobhearted.crawler.management.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,16 +18,23 @@ import java.util.List;
 public class CrawlingApplication {
     private static Logger logger = LoggerFactory.getLogger(CrawlingApplication.class);
 
+    /**
+     * Main method for the application. Initializes logging, loads settings, launches the GUI if needed and creates
+     * the process manager
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         PropertyConfigurator.configure("logging.cfg");
         logger.info("Starting up the CrawlHearted application");
+        Settings.loadSettings();
 
         try {
 
 
             // launching org.jobhearted.crawler.gui if necessary
             List<String> arguments = Arrays.asList(args);
-            if(!arguments.contains("-nogui")) {
+            if (!arguments.contains("-nogui")) {
                 launchGui();
             }
 
@@ -46,5 +54,6 @@ public class CrawlingApplication {
     /**
      * Private constructor to hide the public implicit one
      */
-    private CrawlingApplication() {}
+    private CrawlingApplication() {
+    }
 }
