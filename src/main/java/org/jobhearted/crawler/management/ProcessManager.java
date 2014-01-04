@@ -5,15 +5,14 @@ import org.jobhearted.crawler.exceptions.UnableToStartManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- *  The process Manager handles all the different crawlers in our arsenal. handles things like pausing them,
- *  Starting them up and other administrative tasks.
+ * The process Manager handles all the different crawlers in our arsenal. handles things like pausing them,
+ * Starting them up and other administrative tasks.
  */
 public class ProcessManager {
     private static Logger logger = LoggerFactory.getLogger(ProcessManager.class);
@@ -26,11 +25,12 @@ public class ProcessManager {
      * Opens the database connection, initializes the crawl managers and starts them.
      *
      * @throws SQLException Throws this exception when database connection fails
-     * @throws IOException  Throws this exception when the config files are unreadable
      */
-    private ProcessManager() throws SQLException, IOException {
+    private ProcessManager() throws SQLException {
         logger.info("Initializing the ProcessManager module");
-        Database.loadSettings();
+        if (!Database.loadSettings()) {
+            Database.loadSettings();
+        }
         Database.openDatabaseConnection();
 
         // initialize each crawler and then submit it to the executor
@@ -49,6 +49,7 @@ public class ProcessManager {
 
     /**
      * Creates a Process Manager
+     *
      * @return the new process manager
      * @throws org.jobhearted.crawler.exceptions.UnableToStartManagerException
      *          Error during process manager startup

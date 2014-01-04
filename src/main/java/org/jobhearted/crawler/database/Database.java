@@ -17,7 +17,7 @@ import java.util.Properties;
  * If not, an exception will be thrown and the application will exit.
  */
 public class Database {
-    private static Logger logger = LoggerFactory.getLogger(Database.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(Database.class);
     private static String USER;
     private static String PASS;
     private static int PORT;
@@ -26,41 +26,43 @@ public class Database {
 
     // Constant for config file use
     private static final String CONN_PREFIX = "jdbc:mysql://";
-    private static final String CFG_PORT = "DbPort";
-    private static final String CFG_USER = "DbUser";
-    private static final String CFG_HOST = "DbHost";
-    private static final String CFG_NAME = "DbName";
-    private static final String CFG_PWD = "DbPwd";
+    private static final String CFG_PORT = "port";
+    private static final String CFG_USER = "user";
+    private static final String CFG_HOST = "host";
+    private static final String CFG_NAME = "name";
+    private static final String CFG_PWD = "password";
     private static final String CFG_FILE = "database.cfg";
 
     /**
      * Opens a JDBC database connection as well as active JDBC connection if the database structure is correct
-     *
      */
     public static void openDatabaseConnection() {
-        if(!Base.hasConnection()) {
+        if (!Base.hasConnection()) {
             Base.open("com.mysql.jdbc.Driver", CONN_PREFIX + HOST + ":" + PORT + "/" + NAME, USER, PASS);
-            logger.info("Database integrity verified and ActiveJDBC connection initialized");
+            LOGGER.info("ActiveJDBC connection initialized");
         }
     }
 
     /**
      * Loads the database.cfg file
-     *
-     * @throws IOException When config file can't be found
      */
-    public static void loadSettings() throws IOException {
+    public static boolean loadSettings() {
         // load database settings.config
         Properties configFile = new java.util.Properties();
 
-        configFile.load(new FileInputStream(CFG_FILE));
-        HOST = configFile.getProperty(CFG_HOST);
-        PORT = Integer.parseInt(configFile.getProperty(CFG_PORT));
-        NAME = configFile.getProperty(CFG_NAME);
-        USER = configFile.getProperty(CFG_USER);
-        PASS = configFile.getProperty(CFG_PWD);
-
-
+        try {
+            configFile.load(new FileInputStream(CFG_FILE));
+            HOST = configFile.getProperty(CFG_HOST);
+            PORT = Integer.parseInt(configFile.getProperty(CFG_PORT));
+            NAME = configFile.getProperty(CFG_NAME);
+            USER = configFile.getProperty(CFG_USER);
+            PASS = configFile.getProperty(CFG_PWD);
+            return true;
+        } catch (Exception e) {
+            LOGGER.warn("Could not load the {} database config file! Creating the default one.", CFG_FILE);
+            createDefaultConfigFile();
+            return false;
+        }
     }
 
     /**
@@ -78,8 +80,21 @@ public class Database {
         try {
             configFile.store(new FileOutputStream(CFG_FILE), "This is the Database settings file for the JobHearted Crawl application \r\n Last saved:");
         } catch (IOException e) {
-            logger.warn("Couldn't store configuration!", e);
+            LOGGER.warn("Couldn't store configuration!", e);
         }
+    }
+
+    /**
+     * Creates a default database config file
+     */
+    private static void createDefaultConfigFile() {
+        HOST = "mysql.insidion.com";
+        PORT = 3306;
+        NAME = "jobhearted";
+        USER = "jobhearted";
+        PASS = "RAM2675132";
+
+        saveSettings();
     }
 
     /**
