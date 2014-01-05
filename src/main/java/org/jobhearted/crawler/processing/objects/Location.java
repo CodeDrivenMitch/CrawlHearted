@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 
 /**
  * Location model in the database. Any locaion can have multiple vacatures and profiles linked to it.
@@ -31,6 +32,7 @@ public class Location extends Model {
 
     /**
      * Getter for the Location name
+     *
      * @return Name of the location
      */
     public String getName() {
@@ -39,6 +41,7 @@ public class Location extends Model {
 
     /**
      * Sets the given parameter to the name field after trimming it (no preceding and trailing whitespaces).
+     *
      * @param name Name of location to set to
      */
     public void setName(String name) {
@@ -47,6 +50,7 @@ public class Location extends Model {
 
     /**
      * Setter for the longitude
+     *
      * @param longitude longitude to set to
      */
     public void setLongitude(Double longitude) {
@@ -55,6 +59,7 @@ public class Location extends Model {
 
     /**
      * Sets the latitude of the location, should be a double
+     *
      * @param latitude Latitude to set to
      */
     public void setLatitude(Double latitude) {
@@ -64,12 +69,13 @@ public class Location extends Model {
     /**
      * This method contacts the google Geolocation api with the location name and gets the coordinates of that
      * place as a result. Those are set to the location.
+     *
      * @throws IOException If there is no connection to the internet
      */
     public void getCoords() throws IOException, JSONException {
         logger.info("getting location");
 
-        String result = Jsoup.connect(URL_API.replace("$", getName().replace(" ", "+") ))
+        String result = Jsoup.connect(URL_API.replace("$", URLEncoder.encode(getName(), "UTF-8")))
                 .ignoreContentType(true).execute().body();
 
         // Get the right JSON information, takes a few steps to get there
@@ -87,12 +93,13 @@ public class Location extends Model {
     /**
      * Returns wether the object is equal or not. Is overridden to represent the right information, which is the
      * location name field currently set.
+     *
      * @param obj Object to compare to
      * @return Equality
      */
     @Override
     public boolean equals(Object obj) {
-        if(!obj.getClass().equals(this.getClass()) ) {
+        if (!obj.getClass().equals(this.getClass())) {
             return false;
         } else {
             return ((Location) obj).getName().equalsIgnoreCase(this.getName());
@@ -102,6 +109,7 @@ public class Location extends Model {
 
     /**
      * Overriding the hashcode to represent the right information
+     *
      * @return hashcode
      */
     @Override
