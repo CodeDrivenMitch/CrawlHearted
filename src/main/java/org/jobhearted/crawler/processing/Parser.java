@@ -15,10 +15,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.sql.SQLException;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Class to use for parsing the LinkedIn JSON provided with us in the project. Counts the number of lines in the json,
@@ -37,7 +36,7 @@ public class Parser implements Runnable {
     private boolean parseEducation;
     private boolean parseSkills;
     private List<Education> educationList;
-    private Set<Skill> skillList;
+    private List<Skill> skillList;
 
 
     public Parser(String fileToParse, boolean parseProfile, boolean parseSkills, boolean parseEducation) {
@@ -56,7 +55,7 @@ public class Parser implements Runnable {
             educationList.add((Education) education);
         }
 
-        skillList = new HashSet<Skill>(Base.count("skills").intValue());
+        skillList = new ArrayList<Skill>();
         for (Model skill : Skill.findAll()) {
             skillList.add((Skill) skill);
         }
@@ -126,15 +125,16 @@ public class Parser implements Runnable {
                     }
                     if (allowed) {
                         Skill skill = new Skill();
-                        skill.setString("skill", skills.getString(i));
+                        skill.setSkill(currentSkill);
                         if (!skillList.contains(skill)) {
-
                             logger.info("new Skill " + skills.getString(i));
                             skill.saveIt();
                             skillList.add(skill);
+                            profile.add(skill);
                         }
                         if (parseProfile) {
-                            profile.add(skill);
+
+                            profile.add(skillList.get(skillList.indexOf(skill)));
                         }
                     }
                 }
