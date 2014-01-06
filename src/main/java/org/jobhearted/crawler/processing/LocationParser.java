@@ -20,6 +20,13 @@ public class LocationParser {
     private static List<Location> allLocations;
     private static Logger logger = LoggerFactory.getLogger(LocationParser.class);
 
+    /**
+     * Parses the location provided in the params and adds it to the object that implements Locatable. The locatable
+     * should have a one-to-many or many2many relationship with location.
+     *
+     * @param loc    Location string to parse.
+     * @param object Object to add the location object to.
+     */
     public static void parseLocation(String loc, Locatable object) {
         initializeList();
 

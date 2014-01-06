@@ -10,7 +10,6 @@ public class Profile extends Model implements Locatable {
     // Database fields
     private static final String COL_URL = "url";
     private static final String COL_NAME = "name";
-    private static final String COL_LOCATION = "location";
 
     /**
      * Sets the person's name on the profile
@@ -52,7 +51,11 @@ public class Profile extends Model implements Locatable {
         }
     }
 
-
+    /**
+     * Adds a location to the profile
+     *
+     * @param location Location to add
+     */
     @Override
     public void addLocation(Location location) {
         if (!this.exists()) {

@@ -15,13 +15,14 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA for JobHearted.
- * User: Morlack
- * Date: 12/15/13
- * Time: 1:14 PM
+ * Class to use for parsing the LinkedIn JSON provided with us in the project. Counts the number of lines in the json,
+ * opens the progress window and starts smashing JSON into information useable by us.
  */
 public class Parser implements Runnable {
     // Illegal character array for use in regex
@@ -30,7 +31,7 @@ public class Parser implements Runnable {
             "%", "$", "@", "!", "?", "\"", "\\", "/", "<", ">", "-", "•"
     };
     private static Logger logger = LoggerFactory.getLogger(Parser.class);
-    ProgressWindow window;
+    private ProgressWindow window;
     private String filetoParse;
     private boolean parseProfile;
     private boolean parseEducation;
@@ -108,6 +109,7 @@ public class Parser implements Runnable {
 
     }
 
+
     private void processSkills(Profile profile, JSONObject json) {
         try {
             JSONArray skills = json.getJSONArray("skills");
@@ -123,25 +125,17 @@ public class Parser implements Runnable {
                         }
                     }
                     if (allowed) {
-                        Date date1 = new Date();
                         Skill skill = new Skill();
                         skill.setString("skill", skills.getString(i));
-                        Date date2 = new Date();
                         if (!skillList.contains(skill)) {
 
                             logger.info("new Skill " + skills.getString(i));
                             skill.saveIt();
                             skillList.add(skill);
                         }
-                        Date date3 = new Date();
                         if (parseProfile) {
                             profile.add(skill);
                         }
-                        Date date4 = new Date();
-
-                        //logger.debug("Creating skill took {} ms", date2.getTime() - date1.getTime());
-                        //logger.debug("Checking contains took {} ms", date3.getTime() - date2.getTime());
-                        //logger.debug("Adding skills to profile took {} ms", date4.getTime() - date3.getTime());
                     }
                 }
             }
