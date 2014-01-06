@@ -10,8 +10,8 @@ import java.util.Map;
 
 /**
  * The vacature data class. This is an ActiveJDBC data-object.
-*/
-public class Vacature extends Model {
+ */
+public class Vacature extends Model implements Locatable {
     // Database fields
     public static final String COL_URL_ID = "url_id";
     public static final String COL_HASH = "hash";
@@ -120,14 +120,33 @@ public class Vacature extends Model {
      * Removes all the skills associated with the vacature. Mostly needed when a new version is found, or the
      * vacature has been deleted and should not be included in the matcher, which uses this relation
      */
-    public void removeAllSkills() {
+    private void removeAllSkills() {
         for (Skill s : this.getAll(Skill.class)) {
             this.remove(s);
         }
     }
 
     /**
+     * Removes all locations associated with the vacancy.
+     */
+    private void removeAllLocations() {
+        for (Location location : this.getAll(Location.class)) {
+            this.remove(location);
+        }
+    }
+
+    /**
+     * Removes all educations associated with the vacancy.
+     */
+    private void removeAllEducations() {
+        for (Education education : this.getAll(Education.class)) {
+            this.remove(education);
+        }
+    }
+
+    /**
      * Adds the skill to the vacature, which is later used in the matcher.
+     *
      * @param skill The skill to add
      */
     public void addSkill(Skill skill) {
@@ -137,6 +156,7 @@ public class Vacature extends Model {
 
     /**
      * Add the Education to the vacature, which is later user in the matcher.
+     *
      * @param education The education to add
      */
     public void addEducation(Education education) {
@@ -151,6 +171,7 @@ public class Vacature extends Model {
 
     /**
      * Getter for the omschrijving field of the model
+     *
      * @return de omschrijving
      */
     public String getOmschrijving() {
@@ -159,6 +180,7 @@ public class Vacature extends Model {
 
     /**
      * Setter for the omschrijving field of the model
+     *
      * @param omschrijving The value to set to
      */
     public void setOmschrijving(String omschrijving) {
@@ -168,6 +190,7 @@ public class Vacature extends Model {
     /**
      * Sets the Id of the url the vacature belongs to
      * TODO: Replace this with an ActiveJDBC relationship
+     *
      * @param newId ID to set to
      */
     public void setUrlId(int newId) {
@@ -176,19 +199,24 @@ public class Vacature extends Model {
 
     /**
      * Sets the Active field of the vacature in the database. Sets 0 for inactive and 1 for active.
+     *
      * @param active whether it should be set to active or not
      */
     public void setActive(boolean active) {
-        if(active) {
+        if (active) {
             this.setInteger(COL_ACTIVE, 1);
         } else {
             this.setInteger(COL_ACTIVE, 0);
+            removeAllSkills();
+            removeAllEducations();
+            removeAllLocations();
         }
     }
 
     /**
      * Returns the location of the vacature
      * NOTE: This is the raw location string, not the processed location
+     *
      * @return location
      */
     public String getPlaats() {

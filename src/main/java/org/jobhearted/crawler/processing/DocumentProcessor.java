@@ -1,16 +1,13 @@
 package org.jobhearted.crawler.processing;
 
-import org.javalite.activejdbc.Model;
 import org.jobhearted.crawler.management.CrawlManager;
 import org.jobhearted.crawler.processing.objects.*;
-import org.json.JSONException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,7 +26,7 @@ import java.util.Map;
 
 
 public class DocumentProcessor {
-
+    private static Logger logger = LoggerFactory.getLogger(DocumentProcessor.class);
     public static final String REGEX_WHITESPACE_BEFORE = ".*\\s";
     public static final String REGEX_WHITESPACE_AFTER = "\\s.*";
     // Illegal character array for use in regex
@@ -37,12 +34,9 @@ public class DocumentProcessor {
             "(", ")", ";", ".", ",", ":", "{", "}", "[", "]", "*",
             "&", "^", "%", "$", "@", "!", "?", "\"", "\\", "/", "\'"
     };
-    // Logger
-    private static Logger logger = LoggerFactory.getLogger(DocumentProcessor.class);
     // Static lists of data
     private static List<Skill> allSkills;
     private static List<Education> allEducations;
-    private static List<Location> allLocations;
     // instance fields
     private Map<ProcessData, String> settingsMap;
     private CrawlManager crawlManager;
@@ -88,13 +82,7 @@ public class DocumentProcessor {
             logger.info("Loaded {} Education entries!", allEducations.size());
         }
 
-        if (allLocations == null) {
-            allLocations = new LinkedList<Location>();
-            for (Model l : Location.findAll().load()) {
-                allLocations.add((Location) l);
-            }
-            logger.info("Loaded {} Location entries!", allLocations.size());
-        }
+
     }
 
     /**
@@ -198,7 +186,6 @@ public class DocumentProcessor {
 
         for (Vacature v : list) {
             v.setActive(false);
-            v.removeAllSkills();
             v.save();
         }
     }
@@ -287,28 +274,9 @@ public class DocumentProcessor {
      */
     private void processLocation(Vacature vacature) {
         if (vacature.getPlaats() != null && !vacature.getPlaats().isEmpty()) {
-            String[] locs = vacature.getPlaats().split(",");
+            String[] locs = vacature.getPlaats().split(",|;|/");
             for (String loc : locs) {
-                Location location = new Location();
-                location.setName(loc);
-
-                int index = allLocations.indexOf(location);
-                if (index == -1) {
-                    // This location does not exist yet
-                    try {
-                        location.getCoords();
-                        location.saveIt();
-                        vacature.addLocation(location);
-                        allLocations.add(location);
-                    } catch (IOException e) {
-                        logger.info("Could not get location!", e);
-                    } catch (JSONException e) {
-                        logger.info("Failed to parse the JSON, is it valid?", e);
-                    }
-                } else {
-                    location = allLocations.get(index);
-                    vacature.addLocation(location);
-                }
+                LocationParser.parseLocation(loc, vacature);
             }
         }
     }

@@ -1,7 +1,6 @@
 package org.jobhearted.crawler.processing.objects;
 
 import org.javalite.activejdbc.Model;
-import org.javalite.activejdbc.annotations.Many2Many;
 
 /**
  * Created with IntelliJ IDEA for JobHearted.
@@ -10,7 +9,6 @@ import org.javalite.activejdbc.annotations.Many2Many;
  * Time: 2:50 PM
  */
 
-@Many2Many(other = Vacature.class, join = "vacatures_educations", sourceFKName = "education_id", targetFKName = "vacature_id")
 public class Education extends Model {
     // Database fields
     public static final String COL_EDUCATION = "education";
@@ -55,6 +53,7 @@ public class Education extends Model {
 
     /**
      * Overriding hashCode to always return the same information as the equals function
+     *
      * @return Hashcode of the Eduction field
      */
     @Override

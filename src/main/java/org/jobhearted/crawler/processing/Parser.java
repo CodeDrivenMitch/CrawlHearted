@@ -1,10 +1,11 @@
 package org.jobhearted.crawler.processing;
 
+import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.Model;
 import org.jobhearted.crawler.database.Database;
 import org.jobhearted.crawler.gui.ProgressWindow;
-import org.jobhearted.crawler.processing.objects.Profile;
 import org.jobhearted.crawler.processing.objects.Education;
+import org.jobhearted.crawler.processing.objects.Profile;
 import org.jobhearted.crawler.processing.objects.Skill;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.LinkedList;
-import java.util.List;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA for JobHearted.
@@ -35,7 +36,7 @@ public class Parser implements Runnable {
     private boolean parseEducation;
     private boolean parseSkills;
     private List<Education> educationList;
-    private List<Skill> skillList;
+    private Set<Skill> skillList;
 
 
     public Parser(String fileToParse, boolean parseProfile, boolean parseSkills, boolean parseEducation) {
@@ -54,7 +55,7 @@ public class Parser implements Runnable {
             educationList.add((Education) education);
         }
 
-        skillList = new LinkedList<Skill>();
+        skillList = new HashSet<Skill>(Base.count("skills").intValue());
         for (Model skill : Skill.findAll()) {
             skillList.add((Skill) skill);
         }
@@ -68,15 +69,24 @@ public class Parser implements Runnable {
             int progress = 0;
             BufferedReader br = new BufferedReader(new FileReader(filetoParse));
             String line;
+            int i = 0;
+            Base.connection().setAutoCommit(false);
+            Base.openTransaction();
             while ((line = br.readLine()) != null) {
+                if (i % 100 == 0) {
+                    Base.commitTransaction();
+                }
                 parseJSON(line);
                 progress++;
                 window.setNewProgressValue(progress);
                 logger.info("Done processing Line " + progress);
+                i++;
             }
-
+            Base.commitTransaction();
             br.close();
         } catch (IOException e) {
+            logger.warn("", e);
+        } catch (SQLException e) {
             logger.warn("", e);
         }
 
@@ -113,20 +123,29 @@ public class Parser implements Runnable {
                         }
                     }
                     if (allowed) {
+                        Date date1 = new Date();
                         Skill skill = new Skill();
                         skill.setString("skill", skills.getString(i));
+                        Date date2 = new Date();
                         if (!skillList.contains(skill)) {
-                            logger.info("new Skill " + skills.getString(i));
 
+                            logger.info("new Skill " + skills.getString(i));
                             skill.saveIt();
                             skillList.add(skill);
                         }
+                        Date date3 = new Date();
                         if (parseProfile) {
-                            profile.addSkill(skill);
+                            profile.add(skill);
                         }
+                        Date date4 = new Date();
+
+                        //logger.debug("Creating skill took {} ms", date2.getTime() - date1.getTime());
+                        //logger.debug("Checking contains took {} ms", date3.getTime() - date2.getTime());
+                        //logger.debug("Adding skills to profile took {} ms", date4.getTime() - date3.getTime());
                     }
                 }
             }
+
         } catch (JSONException e) {
             logger.trace("Could not read Skills from JSON", e);
         }
@@ -159,7 +178,7 @@ public class Parser implements Runnable {
         if (list.isEmpty()) {
             JSONObject nameArray = json.getJSONObject("name");
             profile.setName(nameArray.getString("firstname") + " " + nameArray.getString("lastname"));
-            profile.setLocation(json.getString("location"));
+            LocationParser.parseLocation(json.getString("location"), profile);
             profile.setUrl(json.getString("url"));
 
             profile.saveIt();
