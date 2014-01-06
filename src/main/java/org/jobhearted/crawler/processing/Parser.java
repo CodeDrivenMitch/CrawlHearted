@@ -38,7 +38,6 @@ public class Parser implements Runnable {
     private List<Education> educationList;
     private List<Skill> skillList;
 
-
     public Parser(String fileToParse, boolean parseProfile, boolean parseSkills, boolean parseEducation) {
         this.filetoParse = fileToParse;
         this.parseEducation = parseEducation;
@@ -97,7 +96,7 @@ public class Parser implements Runnable {
         JSONObject object = new JSONObject(json);
         Profile person = null;
         if (parseProfile) {
-            person = createProfileFromJSO(object);
+            person = createProfileFromJSON(object);
         }
         if (parseSkills) {
             processSkills(person, object);
@@ -145,6 +144,7 @@ public class Parser implements Runnable {
         }
     }
 
+
     private void processEducations(Profile profile, JSONObject json) {
         try {
             String jsonString = json.toString();
@@ -165,7 +165,13 @@ public class Parser implements Runnable {
         }
     }
 
-    private Profile createProfileFromJSO(JSONObject json) {
+    /**
+     * Creates a profile from the JSONObject provided and saves it to the database.
+     *
+     * @param json json to make a profile of
+     * @return profile object created
+     */
+    private Profile createProfileFromJSON(JSONObject json) {
         Profile profile = new Profile();
 
         List<Profile> list = Profile.find("url = ?", json.getString("url"));

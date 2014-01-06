@@ -27,14 +27,6 @@ public class SettingsWindow {
     private JSpinner spDbSaveInterval;
     private JButton btGeneralSave;
     private JSpinner spRecrawlInterval;
-    private JPanel databaseSettingsPanel;
-    private JTextField tfDbAddress;
-    private JTextField tfDbPort;
-    private JTextField tfDbUser;
-    private JPasswordField pfDbPassword;
-    private JButton btDbTest;
-    private JButton btDbSave;
-    private JTextField tfDbName;
     private JPanel settingsPanel;
     private JSpinner spRecrawlCheckTime;
 
