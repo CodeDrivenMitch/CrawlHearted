@@ -1,7 +1,6 @@
 package org.jobhearted.crawler.processing.objects;
 
 import org.javalite.activejdbc.Model;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
@@ -72,7 +71,7 @@ public class Location extends Model {
      *
      * @throws IOException If there is no connection to the internet
      */
-    public void getCoords() throws IOException, JSONException {
+    public void getCoords() throws IOException {
         logger.info("getting location");
 
         String result = Jsoup.connect(URL_API.replace("$", URLEncoder.encode(getName(), "UTF-8")))

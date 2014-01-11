@@ -29,7 +29,7 @@ public class Vacature extends Model implements Locatable {
         validateNumericalityOf(COL_URL_ID, COL_VERSION, COL_ACTIVE);
     }
 
-    private static final Map<ProcessData, String> databaseMap = createDatabaseMap();
+    private static final Map<ProcessData, String> DATABASE_MAP = createDatabaseMap();
     private static Logger logger = LoggerFactory.getLogger(Vacature.class);
 
     /**
@@ -50,7 +50,7 @@ public class Vacature extends Model implements Locatable {
     }
 
     /**
-     * Sets the given data key to the given value, using the databaseMap field, which mapped all keys to their respective
+     * Sets the given data key to the given value, using the DATABASE_MAP field, which mapped all keys to their respective
      * fields.
      *
      * @param data  The key to set
@@ -61,7 +61,7 @@ public class Vacature extends Model implements Locatable {
             logger.warn("You tried to set a requirement on a vacature. This should NEVER happen!");
             return;
         }
-        this.setString(databaseMap.get(data), value);
+        this.setString(DATABASE_MAP.get(data), value);
     }
 
     /**
@@ -189,7 +189,6 @@ public class Vacature extends Model implements Locatable {
 
     /**
      * Sets the Id of the url the vacature belongs to
-     * TODO: Replace this with an ActiveJDBC relationship
      *
      * @param newId ID to set to
      */

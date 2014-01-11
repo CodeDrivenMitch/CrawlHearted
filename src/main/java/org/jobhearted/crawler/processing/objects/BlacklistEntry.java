@@ -10,7 +10,6 @@ import java.util.List;
  */
 public class BlacklistEntry extends Model {
     // Database fields
-    private static final String COL_ID = "id";
     private static final String COL_CRAWLER_ID = "crawler_id";
     private static final String COL_WORD = "word";
 
@@ -41,6 +40,7 @@ public class BlacklistEntry extends Model {
     /**
      * Reads all entries of the blacklist for the specified crawler id from the database
      * and returns it
+     *
      * @param crawlerId id of the crawler
      * @return All entries of the blacklist
      */

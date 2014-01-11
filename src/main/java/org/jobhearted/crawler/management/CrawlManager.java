@@ -104,11 +104,7 @@ public class CrawlManager extends Model implements Runnable {
 
                 while (this.state == CrawlmanagerState.PAUSING || this.state == CrawlmanagerState.PAUSED) {
                     this.setState(CrawlmanagerState.PAUSED);
-                    try {
-                        sleep(1000);
-                    } catch (InterruptedException e) {
-                        logger.warn("", e);
-                    }
+                    sleepForPause();
                 }
 
                 // do the crawling :)
@@ -284,6 +280,14 @@ public class CrawlManager extends Model implements Runnable {
             return getBaseUrl() + "  -  " + getState().toString();
         } else {
             return getBaseUrl() + " - LOADING";
+        }
+    }
+
+    private void sleepForPause() {
+        try {
+            sleep(1000);
+        } catch (InterruptedException e) {
+            logger.warn("", e);
         }
     }
 }

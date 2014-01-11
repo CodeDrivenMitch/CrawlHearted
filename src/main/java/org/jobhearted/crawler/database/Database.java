@@ -59,7 +59,7 @@ public class Database {
             PASS = configFile.getProperty(CFG_PWD);
             return true;
         } catch (Exception e) {
-            LOGGER.warn("Could not load the {} database config file! Creating the default one.", CFG_FILE);
+            LOGGER.warn("Could not load the {} database config file! Creating the default one.", CFG_FILE, e);
             createDefaultConfigFile();
             return false;
         }

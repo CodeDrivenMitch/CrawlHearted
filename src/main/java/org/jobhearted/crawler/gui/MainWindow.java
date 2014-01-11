@@ -166,7 +166,9 @@ public class MainWindow implements StatisticObserver {
         totalCrawlerTextfieldMap.put(CrawlmanagerState.STOPPED, tfTotalStopped);
 
         for (Map.Entry<CrawlmanagerState, JTextField> entry : totalCrawlerTextfieldMap.entrySet()) {
-            if (entry.getValue() != null) entry.getValue().setText(WAITING_FOR_DATA);
+            if (entry.getValue() != null) {
+                entry.getValue().setText(WAITING_FOR_DATA);
+            }
         }
     }
 

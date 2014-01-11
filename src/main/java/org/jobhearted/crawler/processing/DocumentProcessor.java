@@ -30,10 +30,11 @@ public class DocumentProcessor {
     public static final String REGEX_WHITESPACE_BEFORE = ".*\\s";
     public static final String REGEX_WHITESPACE_AFTER = "\\s.*";
     // Illegal character array for use in regex
-    private static final String[] illegalCharacters = {
+    private static final String[] ILLEGAL_CHARACTERS = {
             "(", ")", ";", ".", ",", ":", "{", "}", "[", "]", "*", "?",
             "&", "^", "%", "$", "@", "!", "?", "\"", "\\", "/", "\'"
     };
+    private static final String NULL_VALUE = "NULL";
     // Static lists of data
     private static List<Skill> allSkills;
     private static List<Education> allEducations;
@@ -201,7 +202,7 @@ public class DocumentProcessor {
 
         for (Map.Entry<ProcessData, String> entry : this.settingsMap.entrySet()) {
             if (entry.getKey() != ProcessData.REQUIREMENTFORVACATURE) {
-                if (!entry.getValue().equals("NULL")) {
+                if (!NULL_VALUE.equals(entry.getValue())) {
                     vacature.putProperty(entry.getKey(), this.documentToProcess.select(entry.getValue()).text());
                 } else {
                     vacature.putProperty(entry.getKey(), "");
@@ -224,7 +225,7 @@ public class DocumentProcessor {
     private void processSkills(Vacature vacature) {
 
         String omschrijving = vacature.getOmschrijving().toLowerCase();
-        for (String i : illegalCharacters) {
+        for (String i : ILLEGAL_CHARACTERS) {
             omschrijving = omschrijving.replace(i, " ");
         }
 
@@ -248,7 +249,7 @@ public class DocumentProcessor {
     private void processEducation(Vacature vacature) {
         // Get the omschrijving and remove illegal characters from it
         String omschrijving = vacature.getOmschrijving().toLowerCase();
-        for (String i : illegalCharacters) {
+        for (String i : ILLEGAL_CHARACTERS) {
             omschrijving = omschrijving.replace(i, " ");
         }
 

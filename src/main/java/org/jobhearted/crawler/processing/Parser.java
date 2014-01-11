@@ -49,11 +49,7 @@ public class Parser implements Runnable {
         this.parseEducation = parseEducation;
         this.parseSkills = parseSkills;
         this.parseProfile = parseProfile;
-        try {
-            window = ProgressWindow.createProgressWindow(count(filetoParse));
-        } catch (IOException e) {
-            logger.warn("", e);
-        }
+
         Database.openDatabaseConnection();
         educationList = new LinkedList<Education>();
         for (Model education : Education.findAll()) {
@@ -74,6 +70,8 @@ public class Parser implements Runnable {
     @Override
     public void run() {
         Database.openDatabaseConnection();
+        launchProgressWindow();
+
         try {
             int progress = 0;
             BufferedReader br = new BufferedReader(new FileReader(filetoParse));
@@ -100,6 +98,14 @@ public class Parser implements Runnable {
         }
 
 
+    }
+
+    private void launchProgressWindow() {
+        try {
+            window = ProgressWindow.createProgressWindow(count(filetoParse));
+        } catch (IOException e) {
+            logger.warn("Could not read the given file!", e);
+        }
     }
 
     /**
