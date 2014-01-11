@@ -9,10 +9,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 /**
- * Created with IntelliJ IDEA for JobHearted.
- * User: Morlack
- * Date: 12/8/13
- * Time: 7:53 PM
+ * ActiveJDBC model for the Urls in the database.
  */
 public class Url extends Model {
     // Database field names
@@ -64,6 +61,10 @@ public class Url extends Model {
         }
     }
 
+    /**
+     * Method which is called when the Crawler couldn't visit the page. Decides whether visiting the url should
+     * be tried again, and if not changed the flag to dead.
+     */
     public void failedConnection() {
         if (this.getFlag() == Flag.RETRY) {
             int currentNumber = this.getInteger(COL_RETRIES);
@@ -78,16 +79,32 @@ public class Url extends Model {
         }
     }
 
+    /**
+     * Makes it so the hashCode function only returns the hashcode of the url field, as intended
+     *
+     * @return hashcode
+     */
     @Override
     public int hashCode() {
         return this.getString(COL_URL).hashCode();
     }
 
+    /**
+     * Overridden the tostring method to make sure it prints out the url
+     *
+     * @return
+     */
     @Override
     public String toString() {
         return this.getString(COL_URL);
     }
 
+    /**
+     * Overridden the equals method to make sure it only compares the url fields.
+     *
+     * @param obj object to compare to
+     * @return whether the object is equal or not.
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj.getClass().equals(Url.class)) {
@@ -98,21 +115,40 @@ public class Url extends Model {
         }
     }
 
+    /**
+     * Sets the crawlManager the url belongs to, for saving it to the database.
+     *
+     * @param crawlmanager Crawlmanager it belongs to
+     */
     public void setParentCrawlmanager(CrawlManager crawlmanager) {
         this.setInteger(Url.COL_CRAWLER_ID, crawlmanager.getInteger("id"));
         this.crawlManager = crawlmanager;
 
     }
 
-
+    /**
+     * Getter for the ID field in the database
+     *
+     * @return Id of the url
+     */
     public int getID() {
         return this.getInteger(COL_ID);
     }
 
+    /**
+     * Getter for the url field in the database
+     *
+     * @return Url of the url
+     */
     public String getUrl() {
         return this.getString(COL_URL);
     }
 
+    /**
+     * Getter for the last visited field in the database
+     *
+     * @return Timestamp last visited
+     */
     public Timestamp getLastVisited() {
         return this.getTimestamp(COL_LAST_SEEN);
     }

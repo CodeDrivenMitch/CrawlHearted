@@ -19,24 +19,6 @@ public class BlacklistEntry extends Model {
         validateNumericalityOf(COL_CRAWLER_ID);
     }
 
-    public String getWord() {
-        return this.getString(COL_WORD);
-    }
-
-    public boolean setWord(String word) {
-        this.setString(COL_WORD, word);
-        return this.isValid();
-    }
-
-    public int getCrawlerId() {
-        return this.getInteger(COL_CRAWLER_ID);
-    }
-
-    public boolean setCrawlerId(int id) {
-        this.setInteger(COL_CRAWLER_ID, id);
-        return this.isValid();
-    }
-
     /**
      * Reads all entries of the blacklist for the specified crawler id from the database
      * and returns it

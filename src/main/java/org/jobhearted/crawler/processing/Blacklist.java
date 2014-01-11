@@ -47,25 +47,4 @@ public class Blacklist {
         }
         return true;
     }
-
-    /**
-     * Adds an entry to the blacklist. This is an API part for usage in the GUI
-     *
-     * @param word    the word to add to the blacklist
-     * @param persist Whether the entry should be saved to the database or not
-     * @return the entry created by the function
-     */
-    public BlacklistEntry addEntry(String word, Boolean persist) {
-        BlacklistEntry entryToAdd = new BlacklistEntry();
-        entryToAdd.setWord(word);
-        entryToAdd.setCrawlerId(crawlerId);
-
-        if (persist) {
-            entryToAdd.save();
-        }
-
-        this.entries.add(entryToAdd);
-
-        return entryToAdd;
-    }
 }
