@@ -21,23 +21,29 @@ import java.util.List;
 
 /**
  * Class to use for parsing the LinkedIn JSON provided with us in the project. Counts the number of lines in the json,
- * opens the progress window and starts smashing JSON into information useable by us.
+ * opens the progress window and starts smashing JSON into information usable by us.
  */
 public class Parser implements Runnable {
-    // Illegal character array for use in regex
-    private static final String[] illegalCharacter = new String[]{
-            "(", ")", ";", ",", ":", "{", "}", "[", "]", "*", "&", "^",
-            "%", "$", "@", "!", "?", "\"", "\\", "/", "<", ">", "-", "•"
-    };
+
     private static Logger logger = LoggerFactory.getLogger(Parser.class);
     private ProgressWindow window;
+    // Parse Settings
     private String filetoParse;
     private boolean parseProfile;
     private boolean parseEducation;
     private boolean parseSkills;
+    // Lists
     private List<Education> educationList;
     private List<Skill> skillList;
 
+    /**
+     * contructor for the parser. This is called when the user starts the parsing in the GUI.
+     *
+     * @param fileToParse    Location of the file to read.
+     * @param parseProfile   Whether to parse the profile or not.
+     * @param parseSkills    Whether to parse the skills or not.
+     * @param parseEducation Whether to parse the education or not.
+     */
     public Parser(String fileToParse, boolean parseProfile, boolean parseSkills, boolean parseEducation) {
         this.filetoParse = fileToParse;
         this.parseEducation = parseEducation;
@@ -61,6 +67,10 @@ public class Parser implements Runnable {
 
     }
 
+    /**
+     * Run method of the Parser, implementing the runnable interface. Reads a line, processes it, and saves the
+     * results every 100 lines, to avoid database connection exhaustion.
+     */
     @Override
     public void run() {
         Database.openDatabaseConnection();
@@ -92,6 +102,11 @@ public class Parser implements Runnable {
 
     }
 
+    /**
+     * Main method to parse the json. Calls the correct methods based on what parts of the JSON should be processed.
+     *
+     * @param json JSON to parse.
+     */
     private void parseJSON(String json) {
         JSONObject object = new JSONObject(json);
         Profile person = null;
@@ -107,36 +122,35 @@ public class Parser implements Runnable {
 
     }
 
-
+    /**
+     * Processes the skills located in the json, and adds them to the profile if profile processing is enabled
+     * when the parser was constructed.
+     *
+     * @param profile Profile to add skills to
+     * @param json    JSON containing the skills
+     */
     private void processSkills(Profile profile, JSONObject json) {
         try {
             JSONArray skills = json.getJSONArray("skills");
             String currentSkill;
             for (int i = 0; i < skills.length(); i++) {
                 currentSkill = skills.getString(i);
-                if (!currentSkill.isEmpty()) {
-                    boolean allowed = true;
 
-                    for (String s : illegalCharacter) {
-                        if (currentSkill.contains(s)) {
-                            allowed = false;
-                        }
+                if (currentSkill.matches("[a-zA-Z0-9 .-]{1,20}")) {
+                    Skill skill = new Skill();
+                    skill.setSkill(currentSkill);
+                    if (!skillList.contains(skill)) {
+                        logger.info("new Skill " + skills.getString(i));
+                        skill.saveIt();
+                        skillList.add(skill);
+                        profile.add(skill);
                     }
-                    if (allowed) {
-                        Skill skill = new Skill();
-                        skill.setSkill(currentSkill);
-                        if (!skillList.contains(skill)) {
-                            logger.info("new Skill " + skills.getString(i));
-                            skill.saveIt();
-                            skillList.add(skill);
-                            profile.add(skill);
-                        }
-                        if (parseProfile) {
+                    if (parseProfile) {
 
-                            profile.add(skillList.get(skillList.indexOf(skill)));
-                        }
+                        profile.add(skillList.get(skillList.indexOf(skill)));
                     }
                 }
+
             }
 
         } catch (JSONException e) {
@@ -144,7 +158,13 @@ public class Parser implements Runnable {
         }
     }
 
-
+    /**
+     * Processes the education located in the JSON. This is done by checking if the total education string is in the
+     * raw JSON.
+     *
+     * @param profile Profile to add the education to
+     * @param json    JSON to process
+     */
     private void processEducations(Profile profile, JSONObject json) {
         try {
             String jsonString = json.toString();

@@ -29,7 +29,6 @@ public class MainWindow implements StatisticObserver {
     private JPanel panelFlags;
     private JPanel panelCrawlerStatus;
     private JPanel panelTools;
-    private JPanel paneCrawlers;
     // Textfields
     private JTextField tfUrlTotalVisited;
     private JTextField tfUrlTotalRetry;
@@ -44,18 +43,12 @@ public class MainWindow implements StatisticObserver {
     private JButton btPauseAll;
     private JButton btResumeAll;
     private JButton btParser;
-    private JButton btOpenSpecificCrawler;
-    // ScrollPanes, used for containing lists and making them scrollable
-    private JScrollPane listScrollPane;
-    // Other components
-    private JList listCrawlers;
     private JButton btOpenSettings;
     // Instance variables
     private Map<Flag, JTextField> totalUrlTextfieldMap;
     private Map<CrawlmanagerState, JTextField> totalCrawlerTextfieldMap;
     private Map<CrawlManager, CrawlmanagerState> stateMap
             = new HashMap<CrawlManager, CrawlmanagerState>();
-    private DefaultListModel listModel;
     private Map<CrawlManager, Map<Flag, Integer>> flagMap
             = new HashMap<CrawlManager, Map<Flag, Integer>>();
 
@@ -71,34 +64,21 @@ public class MainWindow implements StatisticObserver {
         // Add listeners to the UI buttons
         addButtonListeners();
 
-        initializeListModel();
-        btOpenSettings.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (e.getSource() == btOpenSettings) {
-                    SettingsWindow.getSettingsWindow();
-                }
-            }
-        });
+
     }
 
-    public static MainWindow createMainWindow() {
+    /**
+     * Creates the Mainwindow and makes it visible to the user.
+     *
+     * @return The window created
+     */
+    public static JFrame createMainWindow() {
         JFrame frame = new JFrame("JobHearted Crawl Application");
         frame.setContentPane(new MainWindow().mainPanel);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
-        return new MainWindow();
-    }
-
-    /**
-     * Initializes the ListModel, used for the data displayed in the list which is i nthe Specific info panel.
-     */
-    private void initializeListModel() {
-        listModel = new DefaultListModel();
-        listCrawlers.setModel(listModel);
-        // We only want to be able to select one item in the list
-        listCrawlers.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        return frame;
     }
 
     /**
@@ -133,24 +113,14 @@ public class MainWindow implements StatisticObserver {
             }
         });
 
-        btOpenSpecificCrawler.addActionListener(new ActionListener() {
+        btOpenSettings.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (e.getSource() == btOpenSpecificCrawler) {
-                    openSelectedCrawler();
+                if (e.getSource() == btOpenSettings) {
+                    SettingsWindow.getSettingsWindow();
                 }
             }
         });
-    }
-
-    /**
-     * Opens a new window for the Crawler selected in the list
-     */
-    private void openSelectedCrawler() {
-        int selected = listCrawlers.getSelectedIndex();
-        if (selected != -1) {
-            // TODO: Add the window
-        }
     }
 
     /**
@@ -245,11 +215,6 @@ public class MainWindow implements StatisticObserver {
     public void updateCrawlerState(CrawlManager crawlManager, CrawlmanagerState newState) {
         stateMap.put(crawlManager, newState);
 
-        // Add the Manager to the ListModel of the GUI, making it selectable in the list
-        if (!listModel.contains(crawlManager)) {
-            listModel.addElement(crawlManager);
-        }
-
         // Update the general info panel in the GUI
         updateGeneralManagerInformation();
     }
@@ -304,7 +269,6 @@ public class MainWindow implements StatisticObserver {
         if (crawlManager != null) {
             // Remove all traces of the data
             stateMap.remove(crawlManager);
-            listModel.removeElement(crawlManager);
             // Update the GUI
             updateGeneralManagerInformation();
         }

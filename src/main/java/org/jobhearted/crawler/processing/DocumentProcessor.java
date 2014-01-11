@@ -31,7 +31,7 @@ public class DocumentProcessor {
     public static final String REGEX_WHITESPACE_AFTER = "\\s.*";
     // Illegal character array for use in regex
     private static final String[] illegalCharacters = {
-            "(", ")", ";", ".", ",", ":", "{", "}", "[", "]", "*",
+            "(", ")", ";", ".", ",", ":", "{", "}", "[", "]", "*", "?",
             "&", "^", "%", "$", "@", "!", "?", "\"", "\\", "/", "\'"
     };
     // Static lists of data
