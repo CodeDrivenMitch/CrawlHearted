@@ -72,7 +72,7 @@ public class Settings {
         // Set default settings and then save it.
         CRAWL_TIMEOUT = 10000;
         RETRY_POLICY = 5;
-        RECRAWL_TIME = 86400000;
+        RECRAWL_TIME = 86400001;
         RECRAWL_CHECK_TIME = 600000;
 
         saveSettings();
