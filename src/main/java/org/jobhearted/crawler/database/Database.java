@@ -50,6 +50,7 @@ public class Database {
         // load database settings.config
         Properties configFile = new java.util.Properties();
 
+
         try {
             configFile.load(new FileInputStream(CFG_FILE));
             HOST = configFile.getProperty(CFG_HOST);

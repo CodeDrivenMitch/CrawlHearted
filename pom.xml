@@ -91,6 +91,15 @@
                 </executions>
             </plugin>
         </plugins>
+
+        <extensions>
+            <!-- Enabling the use of FTP -->
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ftp</artifactId>
+                <version>1.0-beta-6</version>
+            </extension>
+        </extensions>
     </build>
 
     <dependencies>
@@ -173,4 +182,11 @@
             </plugin>
         </plugins>
     </reporting>
+
+    <distributionManagement>
+        <repository>
+            <id>ftp-repository</id>
+            <url>ftp://insidion.com/home/crawler/</url>
+        </repository>
+    </distributionManagement>
 </project>
